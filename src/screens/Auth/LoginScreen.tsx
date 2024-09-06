@@ -16,7 +16,7 @@ const LoginScreen = (props:propsType) => {
    
     
 
-        navigation.replace('TabNavigation');
+        navigation.navigate('TabNavigation');
     }
 
   return (
