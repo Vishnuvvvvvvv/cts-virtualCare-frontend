@@ -44,11 +44,11 @@ const RegistrationScreen = (props:propsType) => {
         // For example, navigate to the HomeTabs screen
         navigation.navigate('TabNavigation');
       } else {
-        // Handle login error
-        console.error('Login failed', data);
+        // Handle reg error
+        console.error('Registration failed', data);
       }
     } catch (error) {
-      console.error('Error during login', error);
+      console.error('Error during registration', error);
     }
   };
 
