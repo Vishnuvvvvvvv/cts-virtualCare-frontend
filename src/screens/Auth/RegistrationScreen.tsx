@@ -23,7 +23,7 @@ const RegistrationScreen = (props:propsType) => {
 
 
   
-  const handleSignUp = async () => {
+  const signUpHandler = async () => {
     console.log("register clciked")
     try {
       const response = await fetch('http://localhost:3000/register', {
@@ -55,9 +55,7 @@ const RegistrationScreen = (props:propsType) => {
 
 
 
-//   const handleNavigateToLogin = () => {
-//     navigation.navigate('login');
-//   };
+
 
   return (
     <View style={styles.container}>
@@ -91,7 +89,7 @@ const RegistrationScreen = (props:propsType) => {
       {/*Button for registering new user*/}
       <TouchableOpacity
         style={styles.button}
-        onPress={handleSignUp}
+        onPress={signUpHandler}
       >
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
