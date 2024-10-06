@@ -1,35 +1,38 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { stackScreens } from '../../Navigation/RootNavigation'
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  Dimensions,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ImageBackground,
+  View,
+  Image,
+} from "react-native";
+const { width, height } = Dimensions.get("screen");
 
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { stackScreens } from "../../Navigation/RootNavigation";
+import Button from "../../components/Button";
+import HorizontalLine from "../../components/HorizontalLine";
+import InputField from "../../components/InputField";
 
+type propsType = NativeStackScreenProps<stackScreens, "Register">;
 
-type propsType = NativeStackScreenProps<stackScreens ,"Register">
+const RegistrationScreen = (props: propsType) => {
+  const { navigation } = props;
 
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
 
-
-
-const RegistrationScreen = (props:propsType) => {
-
-
-    const {navigation} = props;
-
-
-
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [email, setEmail] = useState('');
-
-
-  
   const signUpHandler = async () => {
-    console.log("register clciked")
+    console.log("register clciked");
     try {
-      const response = await fetch('http://localhost:3000/register', {
-        method: 'POST',
+      const response = await fetch("http://localhost:3000/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           username: username,
@@ -38,70 +41,76 @@ const RegistrationScreen = (props:propsType) => {
       });
 
       const data = await response.json();
-      console.log('Response:', data); 
+      console.log("Response:", data);
       if (response.ok) {
         // Handle successful login
         // For example, navigate to the HomeTabs screen
-        navigation.navigate('TabNavigation');
+        navigation.navigate("TabNavigation");
       } else {
         // Handle reg error
-        console.error('Registration failed', data);
+        console.error("Registration failed", data);
       }
     } catch (error) {
-      console.error('Error during registration', error);
+      console.error("Error during registration", error);
     }
   };
 
-
-
-
-
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>New Registration</Text>
-       {/*Input for new username*/}
-      <TextInput
-        style={styles.input}
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
-      />
-
-      {/** input for email */}
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-      />
-
-
-      {/**input for password field */}
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-
-      {/*Button for registering new user*/}
-      <TouchableOpacity
-        style={styles.button}
-        onPress={signUpHandler}
+    <View style={styles.MainContainer}>
+      <ImageBackground
+        source={require("../../../assets/AuthScreen.png")}
+        style={styles.BgScreen}
       >
-        <Text style={styles.buttonText}>Sign Up</Text>
-      </TouchableOpacity>
-     
-      {/**button for Allready have an account , when clicked takes to login page */}
-      <TouchableOpacity
-        style={styles.link}
-        onPress={()=>{navigation.navigate('login');}}
-      >
-        <Text style={styles.linkText}>Already have an account? Log in</Text>
-      
-      </TouchableOpacity>
+        <View style={styles.container}>
+          <Text style={styles.headingStyle}>Sign Up</Text>
+          {/* <Text style={styles.subLineStyle}>..!</Text> */}
+
+          <InputField
+            placeholder={"Enter Username"}
+            value={username}
+            onChangeText={setUsername}
+          />
+
+          {/** input for email */}
+          <InputField
+            placeholder={"Enter Email"}
+            value={email}
+            onChangeText={setEmail}
+          />
+
+          {/**input for password field */}
+          <InputField
+            placeholder={"Enter Password"}
+            secureTextEntry={true}
+            value={password}
+            onChangeText={setPassword}
+          />
+
+          {/**Signup handler */}
+          <Button title="Register" functionHandler={signUpHandler} />
+
+          <HorizontalLine />
+
+          <View style={styles.iconContainer}>
+            <Image source={require("../../../assets/googleIcon.png")}></Image>
+            <Text style={styles.SignWithGoogle}>Sign Up with Google</Text>
+          </View>
+
+          {/**button for Allready have an account , when clicked takes to login page */}
+          <Text
+            style={styles.LoginStyle}
+            onPress={() => {
+              navigation.navigate("login");
+            }}
+          >
+            Already have an account? Login
+          </Text>
+
+          {/* <View style={styles.footer}>
+            <Text style={styles.termsAndCondition}>copyright@2024</Text>
+          </View> */}
+        </View>
+      </ImageBackground>
     </View>
   );
 };
@@ -109,41 +118,68 @@ const RegistrationScreen = (props:propsType) => {
 export default RegistrationScreen;
 
 const styles = StyleSheet.create({
-  container: {
+  MainContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 16,
+  container: {
+    // alignItems: "center",
+    // justifyContent: "center", // Center items vertically too
+    flex: 1, // Allow the container to take full height and width
+    // width: "100%",
+    // height: "100%",
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingTop: "35%",
   },
-  input: {
-    width: '100%',
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    marginBottom: 16,
+  BgScreen: {
+    width: width,
+    height: height - 40,
   },
-  button: {
-    width: '100%',
-    padding: 16,
-    backgroundColor: '#007BFF',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
+  TextStyle: {
+    color: "white",
+    fontSize: 12,
+    textAlign: "center",
+    marginBottom: 14,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
+  headingStyle: {
+    color: "white",
+    fontSize: 40,
+    marginBottom: 10,
+    fontWeight: "bold",
   },
-  link: {
-    marginTop: 16,
+  subLineStyle: {
+    color: "white",
+    marginBottom: 40,
   },
-  linkText: {
-    color: '#007BFF',
+  iconContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 15,
+  },
+  LoginStyle: {
+    color: "white",
+    fontSize: 12,
+    textAlign: "center",
+    marginTop: 25,
+  },
+
+  footer: {
+    position: "absolute",
+    bottom: 10, // Position near the bottom
+    left: 20, // Ensure it starts from the left edge of the screen
+    right: 20, // Ensure it ends at the right edge of the screen
+    justifyContent: "center",
+    alignItems: "center", // Center the content horizontally
+    width: "100%", // Stretch to fill full width of the screen
+  },
+  termsAndCondition: {
+    color: "white",
+    fontSize: 10,
+    textAlign: "center",
+  },
+  SignWithGoogle: {
+    color: "white",
+    paddingLeft: 10,
   },
 });
