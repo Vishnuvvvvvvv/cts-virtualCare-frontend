@@ -16,6 +16,7 @@ import { stackScreens } from "../../Navigation/RootNavigation";
 import Button from "../../components/Button";
 import HorizontalLine from "../../components/HorizontalLine";
 import InputField from "../../components/InputField";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type propsType = NativeStackScreenProps<stackScreens, "Register">;
 
@@ -25,9 +26,25 @@ const RegistrationScreen = (props: propsType) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const isValidEmail = (email: any) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const signUpHandler = async () => {
     console.log("register clciked");
+
+    if (!username || !password || !email) {
+      setErrorMessage("Please fill out all fields");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      setErrorMessage("Please enter a valid email");
+      return;
+    }
     try {
       const response = await fetch("http://localhost:3000/register", {
         method: "POST",
@@ -37,6 +54,7 @@ const RegistrationScreen = (props: propsType) => {
         body: JSON.stringify({
           username: username,
           password: password,
+          email: email,
         }),
       });
 
@@ -45,13 +63,19 @@ const RegistrationScreen = (props: propsType) => {
       if (response.ok) {
         // Handle successful login
         // For example, navigate to the HomeTabs screen
-        navigation.navigate("TabNavigation");
+
+        const token = "user_auth_token";
+        await AsyncStorage.setItem("authToken", token);
+
+        navigation.replace("basicDetailFillUp");
       } else {
         // Handle reg error
-        console.error("Registration failed", data);
+        // console.error("Registration failed", data);
+        setErrorMessage("Error during Signup. Please try again.");
       }
     } catch (error) {
-      console.error("Error during registration", error);
+      // console.error("Error during registration", error);
+      setErrorMessage("Error during Signup. Please try again.");
     }
   };
 
@@ -88,6 +112,11 @@ const RegistrationScreen = (props: propsType) => {
 
           {/**Signup handler */}
           <Button title="Register" functionHandler={signUpHandler} />
+
+          {/* Display error message if any */}
+          {errorMessage ? (
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          ) : null}
 
           <HorizontalLine />
 
@@ -181,5 +210,10 @@ const styles = StyleSheet.create({
   SignWithGoogle: {
     color: "white",
     paddingLeft: 10,
+  },
+  errorText: {
+    paddingTop: 3,
+    color: "red",
+    textAlign: "center",
   },
 });

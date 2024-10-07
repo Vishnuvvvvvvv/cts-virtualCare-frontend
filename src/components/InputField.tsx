@@ -6,6 +6,8 @@ type InputFieldProps = {
   secureTextEntry?: boolean;
   onChangeText: any;
   value: string;
+  placeholderTextColor?: string;
+  textColor?: string;
 };
 
 const InputField = ({
@@ -13,12 +15,14 @@ const InputField = ({
   secureTextEntry,
   onChangeText,
   value,
+  placeholderTextColor = "white",
+  textColor = "white", // Default text color is white
 }: InputFieldProps) => {
   return (
     <TextInput
-      style={styles.input}
+      style={[styles.input, { color: textColor }]}
       placeholder={placeholder}
-      placeholderTextColor="white"
+      placeholderTextColor={placeholderTextColor}
       secureTextEntry={secureTextEntry}
       value={value}
       onChangeText={onChangeText}
@@ -36,6 +40,5 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 8,
     marginBottom: 16,
-    color: "white",
   },
 });

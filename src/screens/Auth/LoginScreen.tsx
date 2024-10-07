@@ -15,7 +15,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import HorizontalLine from "../../components/HorizontalLine";
 import Button from "../../components/Button";
 import InputField from "../../components/InputField";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 //login screen
 
 type propsType = NativeStackScreenProps<stackScreens, "login">;
@@ -26,15 +26,25 @@ const LoginScreen = (props: propsType) => {
   //username and password
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const LoginHandler = async () => {
     console.log("login clciked", username, ": ", password);
 
+    if (!username || !password) {
+      setErrorMessage("Please fill out all fields");
+      return;
+    }
+
     {
-      /*currently assume username : admin & pass : password for logging in*/
+      /*dummy user credentials : currently assume username : admin &
+       pass : password for logging in*/
     }
     if (username === "admin" && password == "password") {
-      navigation.navigate("TabNavigation");
+      navigation.replace("basicDetailFillUp");
+      const token = "user_auth_token";
+      await AsyncStorage.setItem("authToken", token);
+
       return;
     }
 
@@ -58,13 +68,18 @@ const LoginScreen = (props: propsType) => {
       if (response.ok) {
         // Handle successful login
         // For example, navigate to the TabNavigation screen
-        navigation.navigate("TabNavigation");
+        const token = "user_auth_token";
+        await AsyncStorage.setItem("authToken", token);
+
+        navigation.navigate("basicDetailFillUp");
       } else {
-        // Handle login error
-        console.error("Login failed", data);
+        //// Handle login error
+        //  console.error("Login failed", data);
+        setErrorMessage("Wrong username or password");
       }
     } catch (error) {
-      console.error("Error during login", error);
+      // console.error("Error during login", error);
+      setErrorMessage("Error during login. Please try again.");
     }
   };
 
@@ -95,6 +110,10 @@ const LoginScreen = (props: propsType) => {
 
           {/*Login button*/}
           <Button title="Login" functionHandler={LoginHandler} />
+          {/* Display error message if any */}
+          {errorMessage ? (
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          ) : null}
 
           <HorizontalLine />
 
@@ -186,6 +205,10 @@ const styles = StyleSheet.create({
   termsAndCondition: {
     color: "white",
     fontSize: 10,
+    textAlign: "center",
+  },
+  errorText: {
+    color: "red",
     textAlign: "center",
   },
 });

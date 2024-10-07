@@ -4,7 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 
 type ButtonProps = {
   title: string;
-  functionHandler: () => void;
+  functionHandler: any;
 };
 
 const Button = ({ title, functionHandler }: ButtonProps) => {
