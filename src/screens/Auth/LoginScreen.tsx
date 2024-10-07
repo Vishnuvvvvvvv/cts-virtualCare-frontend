@@ -67,7 +67,7 @@ const LoginScreen = (props: propsType) => {
       console.log("Response:", data);
       if (response.ok) {
         // Handle successful login
-        // For example, navigate to the TabNavigation screen
+
         const token = "user_auth_token";
         await AsyncStorage.setItem("authToken", token);
 
