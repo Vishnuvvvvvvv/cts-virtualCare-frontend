@@ -16,6 +16,7 @@ import HorizontalLine from "../../components/HorizontalLine";
 import Button from "../../components/Button";
 import InputField from "../../components/InputField";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "../../apiConfig";
 //login screen
 
 type propsType = NativeStackScreenProps<stackScreens, "login">;
@@ -52,7 +53,7 @@ const LoginScreen = (props: propsType) => {
 
     try {
       //provide the backend endpoint for validation here
-      const response = await fetch("http://192.168.1.7:3000/login", {
+      const response = await fetch(API.LOGIN, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

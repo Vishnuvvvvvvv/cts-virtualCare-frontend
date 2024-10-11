@@ -17,7 +17,7 @@ import Button from "../../components/Button";
 import HorizontalLine from "../../components/HorizontalLine";
 import InputField from "../../components/InputField";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { API } from "../../apiConfig";
 type propsType = NativeStackScreenProps<stackScreens, "Register">;
 
 const RegistrationScreen = (props: propsType) => {
@@ -46,7 +46,7 @@ const RegistrationScreen = (props: propsType) => {
       return;
     }
     try {
-      const response = await fetch("http://localhost:3000/register", {
+      const response = await fetch(API.REGISTER, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
