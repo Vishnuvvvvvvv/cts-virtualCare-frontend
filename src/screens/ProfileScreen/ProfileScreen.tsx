@@ -12,6 +12,17 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation, NavigationProp } from "@react-navigation/native"; // Import useNavigation hook
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { stackScreens } from "../../Navigation/BottomTabNavigation"; // Ensure this path is correct
+import GetStartedContainer from "./GetStartedContainer";
+import ActionItemsContainer from "./ActionItemsContainer";
+
+// This is the Profile screen
+/** 
+In the profile screen ,there are 3 container
+1.Top container
+2.Bottom Main container:
+    -Get started container
+    -ActionItems container
+*/
 
 type ProfileScreenProps = NativeStackScreenProps<stackScreens, "Profile">;
 
@@ -49,7 +60,17 @@ const ProfileScreen: React.FC<ProfileScreenProps> = () => {
         </View>
       </View>
 
-      <View></View>
+      {/* Bottom Main Container */}
+      <View style={styles.bottomMainContainer}>
+        {/* Icon Container */}
+        <GetStartedContainer />
+
+        {/* <View style={styles.line} /> */}
+
+        {/* Action Items Container  */}
+
+        <ActionItemsContainer />
+      </View>
     </View>
   );
 };
@@ -60,6 +81,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 35,
+    backgroundColor: "#ffffff",
   },
   topLogoContainer: {
     flexDirection: "row",
@@ -99,5 +121,18 @@ const styles = StyleSheet.create({
     fontSize: 24, // Adjust font size as needed
     fontWeight: "bold", // Make it bold
     color: "white",
+  },
+  bottomMainContainer: {
+    // borderWidth: 2,
+    // borderColor: "red",
+    height: "60%",
+  },
+  line: {
+    width: "92%",
+    height: 2,
+    marginTop: "3%",
+    textAlign: "center",
+    alignSelf: "center",
+    backgroundColor: "#ccc",
   },
 });
