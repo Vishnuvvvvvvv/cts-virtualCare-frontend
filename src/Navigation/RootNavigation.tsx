@@ -6,12 +6,21 @@ import RegistrationScreen from "../screens/Auth/RegistrationScreen";
 import BottomTabNavigation from "./BottomTabNavigation";
 import BasicDetailsFillup from "../screens/BasicDetailsFillup";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import UploadDocumentsScreen from "../screens/ProfileScreen/UploadDocumentsScreen";
+import AdditionalInfo from "../screens/ProfileScreen/AdditionalInfo/AdditionalInfo";
+import ReviewAndSubmit from "../screens/ProfileScreen/ReviewAndSubmit/ReviewAndSubmit";
 
 export type stackScreens = {
   TabNavigation: undefined;
   Register: undefined;
   login: undefined;
   basicDetailFillUp: undefined;
+  UploadDocuments: undefined;
+  HomeScreen: undefined; // Include this if you want to navigate to it directly
+  updateHealth: undefined;
+  Profile: undefined;
+  AdditionalInfo: undefined;
+  ReviewAndSubmit: undefined;
 };
 
 const Stack = createNativeStackNavigator<stackScreens>();
@@ -23,7 +32,7 @@ const RootNavigation = () => {
     const checkAuthStatus = async () => {
       const token = await AsyncStorage.getItem("authToken");
       if (token) {
-        setIsSignedIn(true);
+        setIsSignedIn(false);
       }
     };
 
@@ -31,9 +40,7 @@ const RootNavigation = () => {
   }, []);
 
   return (
-    <Stack.Navigator
-      initialRouteName={isSignedIn ? "Register" : "TabNavigation"}
-    >
+    <Stack.Navigator initialRouteName={"Register"}>
       <Stack.Screen
         name="login"
         component={LoginScreen}
@@ -55,6 +62,24 @@ const RootNavigation = () => {
         name="TabNavigation"
         component={BottomTabNavigation}
         options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="UploadDocuments"
+        component={UploadDocumentsScreen}
+        options={{ headerShown: true }}
+      />
+
+      <Stack.Screen
+        name="AdditionalInfo"
+        component={AdditionalInfo}
+        options={{ headerShown: true }}
+      />
+
+      <Stack.Screen
+        name="ReviewAndSubmit"
+        component={ReviewAndSubmit}
+        options={{ headerShown: true }}
       />
     </Stack.Navigator>
   );

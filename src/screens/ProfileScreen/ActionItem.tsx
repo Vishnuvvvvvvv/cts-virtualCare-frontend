@@ -15,11 +15,12 @@ type propsType = {
     width: number;
     height: number;
   };
+  onPress?: () => void;
 };
 
-const ActionItem = ({ icon, title, iconStyle }: propsType) => {
+const ActionItem = ({ icon, title, iconStyle, onPress }: propsType) => {
   return (
-    <TouchableOpacity style={styles.ActionItem}>
+    <TouchableOpacity style={styles.ActionItem} onPress={onPress}>
       <Image source={icon} style={[styles.icon, iconStyle]} />
       <Text style={styles.label}>{title}</Text>
       <Image
@@ -48,7 +49,8 @@ const styles = StyleSheet.create({
   },
   icon: {
     width: 24,
-    height: 24,
+    height: 26,
+    marginLeft: 10,
   },
   label: {
     fontSize: 16,

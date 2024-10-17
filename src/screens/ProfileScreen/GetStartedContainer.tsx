@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Image } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 
 // current screen : Get Started Screen
@@ -11,9 +11,12 @@ In the profile screen ,there are 3 container
     -Get started container
     -ActionItems container
 */
+import { useUser } from "../../UserContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const GetStartedContainer = () => {
-  const [step, setStep] = useState(0);
+  //  const [step, setStep] = useState(0);
+  const { step, setStep } = useUser();
 
   /**when,
    
@@ -24,6 +27,28 @@ const GetStartedContainer = () => {
    *
    *
    */
+
+  useEffect(() => {
+    const checkExtractedJson = async () => {
+      try {
+        const extractedJson = await AsyncStorage.getItem("Extractedjson");
+        if (extractedJson) {
+          // If extractedJson exists, set step to 1
+          setStep(1);
+        } else {
+          // If extractedJson doesn't exist, set step to 0
+          setStep(0);
+        }
+      } catch (error) {
+        console.error("Error reading extracted JSON from AsyncStorage:", error);
+        // You might want to handle errors, maybe set step to a default value
+        setStep(0);
+      }
+    };
+
+    checkExtractedJson();
+  }, [setStep]);
+
   return (
     <View style={styles.GetStartedContainer}>
       <Text style={styles.heading}>Get Started</Text>
@@ -117,6 +142,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     // borderWidth: 1,
+    padding: 10,
   },
   step1: {
     alignItems: "center",
@@ -132,7 +158,9 @@ const styles = StyleSheet.create({
     width: "100%",
     aspectRatio: 1,
     borderRadius: 50,
-    backgroundColor: "#D3C1FA",
+    // borderColor: "#8253E9",
+    // borderWidth: 3,
+    backgroundColor: "#A1A5A4",
 
     alignItems: "center",
     justifyContent: "center",
@@ -170,7 +198,7 @@ const styles = StyleSheet.create({
     width: "100%",
     aspectRatio: 1,
     borderRadius: 50,
-    backgroundColor: "#B9E5FF",
+    backgroundColor: "#687B51",
 
     alignItems: "center",
     justifyContent: "center",
@@ -194,7 +222,7 @@ const styles = StyleSheet.create({
     width: "100%",
     aspectRatio: 1,
     borderRadius: 50,
-    backgroundColor: "#FFC9E2",
+    backgroundColor: "#9F7F6A",
 
     alignItems: "center",
     justifyContent: "center",
@@ -209,9 +237,9 @@ const styles = StyleSheet.create({
   },
 
   filledLine1: {
-    backgroundColor: "#D3C1FA", // Color for the filled line
+    backgroundColor: "#A1A5A4", // Color for the filled line
   },
   filledLine2: {
-    backgroundColor: "#B9E5FF", // Color for the filled line
+    backgroundColor: "#687B51", // Color for the filled line
   },
 });
