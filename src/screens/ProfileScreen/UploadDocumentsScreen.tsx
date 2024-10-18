@@ -18,6 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useUser } from "../../../src/UserContext";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { stackScreens } from "../../Navigation/RootNavigation";
+import { API } from "../../apiConfig";
 
 // Define the type for the file
 type FileType = {
@@ -168,16 +169,13 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
 
     try {
       console.log("reached ----");
-      const response = await fetch(
-        "http://192.168.236.112:3000/generate-content",
-        {
-          method: "POST",
-          body: formData,
-          headers: {
-            "Content-Type": "multipart/form-data", // Let the browser/mobile handle the Content-Type
-          },
-        }
-      );
+      const response = await fetch(API.UPLOAD_IMAGE, {
+        method: "POST",
+        body: formData,
+        headers: {
+          "Content-Type": "multipart/form-data", // Let the browser/mobile handle the Content-Type
+        },
+      });
       console.log(" ----- reached ----");
       const result = await response.json();
 
