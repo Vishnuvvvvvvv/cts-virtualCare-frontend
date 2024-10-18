@@ -15,7 +15,10 @@ import { stackScreens } from "../../Navigation/RootNavigation"; // Ensure this p
 import GetStartedContainer from "./GetStartedContainer";
 import ActionItemsContainer from "./ActionItemsContainer";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { useUser } from "../../UserContext";
 // import { stackScreens } from "../../Navigation/BottomTabNavigation"; // Make sure this path is correct
+
+//Main page
 
 // This is the Profile screen
 /** 
@@ -29,9 +32,12 @@ type ProfileScreenProps = NativeStackScreenProps<stackScreens, "Profile">;
 // Define the prop type for ProfileScreen
 
 const ProfileScreen = (props: ProfileScreenProps) => {
+  const { setIsAuthenticated } = useUser();
+
   const { navigation } = props;
   const handleSignOut = async () => {
     await AsyncStorage.removeItem("authToken");
+    setIsAuthenticated(false);
     navigation.reset({
       index: 0,
       routes: [{ name: "Register" }], // Navigate back to login screen in stack navigation

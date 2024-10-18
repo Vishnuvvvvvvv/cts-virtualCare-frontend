@@ -18,11 +18,12 @@ import HorizontalLine from "../../components/HorizontalLine";
 import InputField from "../../components/InputField";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API } from "../../apiConfig";
+import { useUser } from "../../UserContext";
 type propsType = NativeStackScreenProps<stackScreens, "Register">;
 
 const RegistrationScreen = (props: propsType) => {
   const { navigation } = props;
-
+  const { isAuthenticated, setIsAuthenticated } = useUser();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -63,17 +64,19 @@ const RegistrationScreen = (props: propsType) => {
       if (response.ok) {
         // Handle successful login
         // For example, navigate to the HomeTabs screen
-
-        const token = "user_auth_token";
+        setIsAuthenticated(true);
+        const token = data.token;
         await AsyncStorage.setItem("authToken", token);
 
         navigation.replace("basicDetailFillUp");
       } else {
+        setIsAuthenticated(false);
         // Handle reg error
         // console.error("Registration failed", data);
         setErrorMessage("Error during Signup. Please try again.");
       }
     } catch (error) {
+      setIsAuthenticated(false);
       // console.error("Error during registration", error);
       setErrorMessage("Error during Signup. Please try again.");
     }

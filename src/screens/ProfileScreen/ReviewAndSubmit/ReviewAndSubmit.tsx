@@ -3,15 +3,34 @@ import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ReviewAndSubmit = () => {
-  const [extractedData, setExtractedData] = useState(null); // State to hold the extracted JSON
+  const [extractedData, setExtractedData] = useState<any>(null); // State to hold the extracted JSON from the medical document
+  const [userDetails, setUserDetails] = useState<any>(null); // State to hold the user details
 
+  // Fetch userDetails from AsyncStorage
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchUserDetails = async () => {
       try {
-        const jsonValue = await AsyncStorage.getItem("Extractedjson");
-        if (jsonValue != null) {
-          // Parse the JSON string into an object
-          setExtractedData(JSON.parse(jsonValue));
+        const storedUserDetails = await AsyncStorage.getItem("userDetails");
+        if (storedUserDetails) {
+          setUserDetails(JSON.parse(storedUserDetails)); // Parse the JSON string
+        } else {
+          console.log("No userDetails found in AsyncStorage.");
+        }
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      }
+    };
+
+    fetchUserDetails(); // Call the async function
+  }, []);
+
+  // Fetch extracted JSON data from AsyncStorage
+  useEffect(() => {
+    const fetchExtractedData = async () => {
+      try {
+        const jsonData = await AsyncStorage.getItem("Extractedjson");
+        if (jsonData != null) {
+          setExtractedData(JSON.parse(jsonData)); // Parse the JSON string into an object
         } else {
           console.log("No data found for the key 'Extractedjson'.");
         }
@@ -20,10 +39,10 @@ const ReviewAndSubmit = () => {
       }
     };
 
-    fetchData();
+    fetchExtractedData(); // Call the async function
   }, []); // Empty dependency array ensures this runs once when the component mounts
 
-  // If the extractedData exists, map the data accordingly
+  // If no extractedData exists, display a message
   if (!extractedData) {
     return (
       <View style={styles.container}>
@@ -32,37 +51,49 @@ const ReviewAndSubmit = () => {
     );
   }
 
-  // Extract specific data from the JSON (based on expected structure)
-  const { discharge_details, patient, treating_consultant } = extractedData;
+  // Extract specific data from the extracted JSON
+  const { discharge_details, treating_consultant } = extractedData || {};
 
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContent}>
       <View style={styles.container}>
         <Text style={styles.heading}>Review and Submit</Text>
 
+        {/* Display the entire extracted data */}
         {extractedData ? (
-          <Text>{JSON.stringify(extractedData, null, 2)}</Text> // Display the extracted data
+          <Text>{JSON.stringify(extractedData, null, 2)}</Text> // Pretty-print JSON
         ) : (
           <Text>No data available.</Text>
         )}
 
-        <Text style={styles.sectionTitle}>Patient Information</Text>
-        <Text>Name: {patient?.name || "N/A"}</Text>
-        <Text>Age: {patient?.age || "N/A"}</Text>
+        {/* Patient Information */}
+        {userDetails ? (
+          <>
+            <Text style={styles.sectionTitle}>Patient Information</Text>
+            <Text>Name: {userDetails?.name || "N/A"}</Text>
+            <Text>Age: {userDetails?.age || "N/A"}</Text>
+            <Text>Gender: {userDetails?.gender || "N/A"}</Text>
+            <Text>DOB: {userDetails?.dateOfBirth || "N/A"}</Text>
+          </>
+        ) : (
+          <Text>No patient details available.</Text>
+        )}
 
+        {/* Treating Consultant Information */}
         <Text style={styles.sectionTitle}>Treating Consultant</Text>
         <Text>Name: {treating_consultant?.name || "N/A"}</Text>
         <Text>Specialty: {treating_consultant?.specialty || "N/A"}</Text>
         <Text>Hospital: {treating_consultant?.hospital || "N/A"}</Text>
 
+        {/* Medication Details */}
         <Text style={styles.sectionTitle}>Medication Details</Text>
         {discharge_details?.prescription?.length > 0 ? (
-          discharge_details.prescription.map((med, index) => (
+          discharge_details.prescription.map((med: any, index: number) => (
             <View key={index} style={styles.card}>
-              <Text>Name: {med.name || "N/A"}</Text>
-              <Text>Qty: {med.qty || "N/A"}</Text>
-              <Text>Time: {med.time || "N/A"}</Text>
-              <Text>Duration: {med.duration || "N/A"}</Text>
+              <Text>Name: {med?.medicine_name || "N/A"}</Text>
+              <Text>Qty: {med?.qty || "N/A"}</Text>
+              <Text>Time: {med?.dosage || "N/A"}</Text>
+              <Text>Duration: {med?.duration || "N/A"}</Text>
             </View>
           ))
         ) : (

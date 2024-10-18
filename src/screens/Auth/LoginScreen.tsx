@@ -17,13 +17,14 @@ import Button from "../../components/Button";
 import InputField from "../../components/InputField";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API } from "../../apiConfig";
+import { useUser } from "../../UserContext";
 //login screen
 
 type propsType = NativeStackScreenProps<stackScreens, "login">;
 
 const LoginScreen = (props: propsType) => {
   const { navigation } = props;
-
+  const { setIsAuthenticated } = useUser();
   //username and password
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -34,6 +35,7 @@ const LoginScreen = (props: propsType) => {
 
     if (!username || !password) {
       setErrorMessage("Please fill out all fields");
+      setIsAuthenticated(false);
       return;
     }
 
@@ -42,10 +44,11 @@ const LoginScreen = (props: propsType) => {
        pass : password for logging in*/
     }
     if (username === "admin" && password == "password") {
-      navigation.replace("basicDetailFillUp");
+      setIsAuthenticated(true);
+
       const token = "user_auth_token";
       await AsyncStorage.setItem("authToken", token);
-
+      navigation.replace("basicDetailFillUp");
       return;
     }
 
@@ -68,18 +71,20 @@ const LoginScreen = (props: propsType) => {
       console.log("Response:", data);
       if (response.ok) {
         // Handle successful login
-
-        const token = "user_auth_token";
+        setIsAuthenticated(true);
+        const token = data.token;
         await AsyncStorage.setItem("authToken", token);
 
         navigation.navigate("basicDetailFillUp");
       } else {
         //// Handle login error
         //  console.error("Login failed", data);
+        setIsAuthenticated(false);
         setErrorMessage("Wrong username or password");
       }
     } catch (error) {
       // console.error("Error during login", error);
+      setIsAuthenticated(false);
       setErrorMessage("Error during login. Please try again.");
     }
   };
