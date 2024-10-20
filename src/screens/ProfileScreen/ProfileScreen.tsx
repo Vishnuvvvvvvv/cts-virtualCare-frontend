@@ -16,6 +16,7 @@ import GetStartedContainer from "./GetStartedContainer";
 import ActionItemsContainer from "./ActionItemsContainer";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useUser } from "../../UserContext";
+
 // import { stackScreens } from "../../Navigation/BottomTabNavigation"; // Make sure this path is correct
 
 //Main page
@@ -32,8 +33,8 @@ type ProfileScreenProps = NativeStackScreenProps<stackScreens, "Profile">;
 // Define the prop type for ProfileScreen
 
 const ProfileScreen = (props: ProfileScreenProps) => {
-  const { setIsAuthenticated } = useUser();
-
+  const { userDetails, setIsAuthenticated } = useUser();
+  console.log("username : ", userDetails.name);
   const { navigation } = props;
   const handleSignOut = async () => {
     await AsyncStorage.removeItem("authToken");

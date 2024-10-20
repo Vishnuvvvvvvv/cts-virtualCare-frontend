@@ -5,5 +5,5 @@ export const API = {
   LOGIN: `${BASE_URL}/api/login`,
   REGISTER: `${BASE_URL}/api/signup`,
   // Add more endpoints as needed
-  UPLOAD_IMAGE: `http://192.168.1.9:3001/upload-image`,
+  UPLOAD_DOC: `http://192.168.1.2:3001/upload-doc`,
 };

@@ -169,7 +169,7 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
 
     try {
       console.log("reached ----");
-      const response = await fetch(API.UPLOAD_IMAGE, {
+      const response = await fetch(API.UPLOAD_DOC, {
         method: "POST",
         body: formData,
         headers: {
@@ -178,13 +178,19 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
       });
       console.log(" ----- reached ----");
       const result = await response.json();
-
+      console.log("res: ", result);
       if (response.ok) {
         navigation.goBack();
-        console.log("File uploaded successfully:", result);
-        setPrescription(result);
+        const cleanResponse = result.replace(/```json\n|```/g, "");
+        const parsedResponse = JSON.parse(cleanResponse);
+        console.log("File uploaded successfully:", parsedResponse);
+
+        setPrescription(parsedResponse);
         setStep(1);
-        await AsyncStorage.setItem("Extractedjson", JSON.stringify(result));
+        await AsyncStorage.setItem(
+          "Extractedjson",
+          JSON.stringify(parsedResponse)
+        );
       } else {
         console.error("Upload failed:", result);
       }
@@ -195,7 +201,7 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
 
   return (
     <View style={styles.container}>
-      {/* When any file is selected hide  the choose file button and display the chosen file */}
+      {/* When any file is selected , hide  the choose file button and display the chosen file */}
       {selectedFile && (
         <>
           {selectedFile.type && selectedFile.type.startsWith("image/") && (

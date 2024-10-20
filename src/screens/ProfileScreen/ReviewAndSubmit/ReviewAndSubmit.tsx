@@ -63,15 +63,15 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
   const handleSave = async () => {
     const saveData = {
       userDetails,
-      date: new Date(),
-      discharge_details: extractedData?.discharge_details || {},
       treating_consultant: extractedData?.treating_consultant || {},
+      PlanActivatedDate: new Date(),
+      discharge_details: extractedData?.discharge_details || {},
     };
 
     try {
       await AsyncStorage.setItem("SavedData", JSON.stringify(saveData));
       Alert.alert("Success", "Health Plan have been Activated successfully!");
-      console.log("Saved Data: ", saveData);
+      console.log("Saved Data: ", JSON.stringify(saveData, null, 2));
       // Navigate back to the previous screen
       setStep(3);
       navigation.goBack(); // Add this line
@@ -94,7 +94,7 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
   }
 
   const { discharge_details, treating_consultant } = extractedData || {};
-
+  console.log("discharge_details : ", discharge_details.prescription);
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -247,16 +247,16 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
                   });
                 }}
               />
-              <Text style={styles.label}>Quantity</Text>
+              <Text style={styles.label}>Time</Text>
               <TextInput
                 editable={isEditing}
                 style={styles.input}
-                value={med?.qty}
+                value={med?.time}
                 onChangeText={(text) => {
                   const updatedPrescription = [
                     ...discharge_details.prescription,
                   ];
-                  updatedPrescription[index].qty = text;
+                  updatedPrescription[index].time = text;
                   setExtractedData({
                     ...extractedData,
                     discharge_details: {
