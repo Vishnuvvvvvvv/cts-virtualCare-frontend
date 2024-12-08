@@ -1,58 +1,94 @@
 import React from 'react';
-import { Button, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
-
+import { Button, StyleSheet, Text, View, Image, TouchableOpacity, ScrollView } from 'react-native';
 const HomeScreen = () => {
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
+      {/* Header Section */}
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>Virtual Care</Text>
+        <View style={styles.circle}></View>
+      </View>
+
       {/* Profile Section */}
       <View style={styles.profileContainer}>
-        <Text style={styles.headerText}>Virtual Care</Text>
         <View style={styles.profileDetails}>
-          <Text style={styles.profileText}>Name: John David</Text>
-          <Text style={styles.profileText}>Age: 54 years</Text>
-          <Text style={styles.profileText}>Gender: Male</Text>
           <Image
-            source={{ uri: 'https://via.placeholder.com/50' }} // Replace with icon URL
-            style={styles.profileImage}
+            source={{ uri: 'https://via.placeholder.com/80' }} // Replace with profile image URL
+            style={styles.profileImageLarge}
           />
+          <View>
+            <Text style={styles.profileText}>Name: John David</Text>
+            <Text style={styles.profileText}>Age: 54 years</Text>
+            <Text style={styles.profileText}>Gender: Male</Text>
+          </View>
         </View>
       </View>
 
       {/* Today's Reminder Section */}
       <View style={styles.section}>
         <Text style={styles.sectionHeader}>Today's Reminder</Text>
-        <View style={styles.remindersContainer}>
+        <ScrollView contentContainerStyle={styles.remindersContainer} horizontal={true}>
+        
           <TouchableOpacity style={styles.reminderButton}>
-            <Text>Daily Medicine</Text>
+            <Image
+              source={{ uri: 'https://via.placeholder.com/50' }}
+              style={styles.icon}
+            />
+            <Text style={styles.buttonText}>Daily Medicine</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.reminderButton}>
-            <Text>Daily Diet</Text>
+            <Image
+              source={{ uri: 'https://via.placeholder.com/50' }}
+              style={styles.icon}
+            />
+            <Text style={styles.buttonText}>Daily Diet</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.reminderButton}>
-            <Text>Checkup</Text>
+            <Image
+              source={{ uri: 'https://via.placeholder.com/50' }}
+              style={styles.icon}
+            />
+            <Text style={styles.buttonText}>Checkup</Text>
           </TouchableOpacity>
-        </View>
+          </ScrollView>
+        
       </View>
-
+      
       {/* Monitor Health Section */}
       <View style={styles.section}>
         <Text style={styles.sectionHeader}>Monitor Health</Text>
         <View style={styles.monitorContainer}>
           <TouchableOpacity style={styles.monitorButton}>
-            <Text>Medications</Text>
+            <Image
+              source={{ uri: 'https://via.placeholder.com/50' }}
+              style={styles.icon}
+            />
+            <Text style={styles.buttonText}>Medications</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.monitorButton}>
-            <Text>Health Report</Text>
+            <Image
+              source={{ uri: 'https://via.placeholder.com/50' }}
+              style={styles.icon}
+            />
+            <Text style={styles.buttonText}>Health Report</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.monitorButton}>
-            <Text>Test Dates</Text>
+            <Image
+              source={{ uri: 'https://via.placeholder.com/50' }}
+              style={styles.icon}
+            />
+            <Text style={styles.buttonText}>Test Dates</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.monitorButton}>
-            <Text>Exercise</Text>
+            <Image
+              source={{ uri: 'https://via.placeholder.com/50' }}
+              style={styles.icon}
+            />
+            <Text style={styles.buttonText}>Exercise</Text>
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -60,45 +96,65 @@ export default HomeScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#fff', 
+    flexGrow: 1,  
   },
-  profileContainer: {
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
+    borderBottomWidth: 1, 
+    borderBottomColor: '#000', 
+    paddingBottom: 10, 
   },
   headerText: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
+    color: '#5a3d8e',
+  },
+  circle: {
+    width: 25,
+    height: 25,
+    borderRadius: 25,
+    backgroundColor: '#5a3d8e',  // Purple circle
+  },
+  profileContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+    backgroundColor: '#E6D7FF',
+    borderRadius: 10,
+    padding: 15,
   },
   profileDetails: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     width: '100%',
-    padding: 15,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
   },
   profileText: {
     fontSize: 16,
-    color: '#333',
+    color: '#5a3d8e',
   },
-  profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginLeft: 10,
+  profileImageLarge: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginRight: 15,
+    borderColor: '#E6D7FF',
+    borderWidth: 2,
   },
   section: {
     marginBottom: 20,
+    backgroundColor: '#E6D7FF',
+    borderRadius: 10,
+    padding: 15,
   },
   sectionHeader: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: '#5a3d8e',
     marginBottom: 10,
   },
   remindersContainer: {
@@ -107,10 +163,22 @@ const styles = StyleSheet.create({
   },
   reminderButton: {
     width: '30%',
-    padding: 15,
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#c2a7d6',
     borderRadius: 10,
+    padding: 10,
+  },
+  buttonText: {
+    fontSize: 14,
+    color: '#fff',
+    textAlign: 'center',
+    marginTop: 5,
+  },
+  icon: {
+    width: 50,
+    height: 50,
+    borderRadius: 10,
+    backgroundColor: '#e6d7f9',
   },
   monitorContainer: {
     flexDirection: 'row',
@@ -119,10 +187,11 @@ const styles = StyleSheet.create({
   },
   monitorButton: {
     width: '45%',
-    padding: 15,
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#c2a7d6',
     borderRadius: 10,
+    padding: 10,
     marginBottom: 10,
   },
 });
+
