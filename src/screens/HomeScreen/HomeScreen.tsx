@@ -1,5 +1,12 @@
-import React from 'react';
-import { Button, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import React from "react";
+import {
+  Button,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 
 const HomeScreen = () => {
   return (
@@ -12,7 +19,7 @@ const HomeScreen = () => {
           <Text style={styles.profileText}>Age: 54 years</Text>
           <Text style={styles.profileText}>Gender: Male</Text>
           <Image
-            source={{ uri: 'https://via.placeholder.com/50' }} // Replace with icon URL
+            source={{ uri: "https://via.placeholder.com/50" }} // Replace with icon URL
             style={styles.profileImage}
           />
         </View>
@@ -62,30 +69,30 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   profileContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
   },
   headerText: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
   profileDetails: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    width: '100%',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around",
+    width: "100%",
     padding: 15,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 10,
   },
   profileText: {
     fontSize: 16,
-    color: '#333',
+    color: "#333",
   },
   profileImage: {
     width: 50,
@@ -98,30 +105,30 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
   remindersContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
   },
   reminderButton: {
-    width: '30%',
+    width: "30%",
     padding: 15,
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    alignItems: "center",
+    backgroundColor: "#f0f0f0",
     borderRadius: 10,
   },
   monitorContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
   },
   monitorButton: {
-    width: '45%',
+    width: "45%",
     padding: 15,
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    alignItems: "center",
+    backgroundColor: "#f0f0f0",
     borderRadius: 10,
     marginBottom: 10,
   },
