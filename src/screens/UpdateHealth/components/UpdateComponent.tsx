@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View, Pressable } from "react-native";
 import React from "react";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -6,38 +6,50 @@ type propType = { text: string; onPress?: () => void };
 
 const UpdateComponent = ({ text, onPress }: propType) => {
   return (
-    <LinearGradient
-      colors={["#E9F5FF", "#FFFFFF"]}
-      style={styles.optionButton} // Apply gradient to the TouchableOpacity style
-      start={[0, 0]} // Optional: adjust the gradient direction
-      end={[1, 0]} // Optional: adjust the gradient direction
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.btnContainer,
+        pressed && styles.pressedEffect, // Apply a different style when pressed
+      ]}
     >
-      <TouchableOpacity onPress={onPress}>
+      <LinearGradient
+        colors={["#E9F5FF", "#FFFFFF"]}
+        style={styles.optionButton}
+        start={[0, 0]}
+        end={[1, 0]}
+      >
         <Text style={styles.optionText}>{text}</Text>
-      </TouchableOpacity>
-    </LinearGradient>
+      </LinearGradient>
+    </Pressable>
   );
 };
 
 export default UpdateComponent;
 
 const styles = StyleSheet.create({
+  btnContainer: {
+    width: "80%",
+    borderRadius: 14,
+  },
+  pressedEffect: {
+    transform: [{ scale: 0.96 }], // Slightly shrink the button
+    opacity: 0.9, // Slightly dim the button
+  },
   optionButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    width: "80%",
+    width: "100%",
     paddingVertical: 25,
     borderRadius: 14,
     marginBottom: "15%",
-    backgroundColor: "#F0F4FF", // Optional: set a background color
-    // iOS shadow properties
-    shadowColor: "#000", // Shadow color
-    shadowOffset: { width: 0, height: 10 }, // Horizontal and vertical offset
-    shadowOpacity: 0.2, // Transparency of the shadow
-    shadowRadius: 10, // Radius of the shadow
-    // Android shadow properties (using elevation)
-    elevation: 7, // Elevation value to simulate shadow on Android
+    backgroundColor: "#F0F4FF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 7,
   },
   optionText: {
     fontSize: 20,
