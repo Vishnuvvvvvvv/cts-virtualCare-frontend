@@ -680,12 +680,18 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
 
     fetchExtractedData();
   }, []);
-
+  const PlanActivatedDate = (() => {
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, "0"); // Ensure 2-digit day
+    const month = String(today.getMonth() + 1).padStart(2, "0"); // Ensure 2-digit month
+    const year = today.getFullYear();
+    return `${day}-${month}-${year}`;
+  })();
   const handleSave = async () => {
     const saveData = {
       userDetails,
       treating_consultant: extractedData?.treating_consultant || {},
-      PlanActivatedDate: new Date(),
+      PlanActivatedDate: PlanActivatedDate,
       discharge_details: extractedData?.discharge_details || {},
     };
     console.log("saved data ", saveData);
@@ -730,6 +736,24 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
               editable={isEditing}
               style={styles.input}
               value={userDetails.age}
+            />
+            <Text style={styles.label}>Gender</Text>
+            <TextInput
+              editable={isEditing}
+              style={styles.input}
+              value={userDetails.gender}
+              onChangeText={(text) =>
+                setUserDetails({ ...userDetails, gender: text })
+              }
+            />
+            <Text style={styles.label}>Date of Birth</Text>
+            <TextInput
+              editable={isEditing}
+              style={styles.input}
+              value={userDetails.dateOfBirth}
+              onChangeText={(text) =>
+                setUserDetails({ ...userDetails, dateOfBirth: text })
+              }
             />
           </>
         ) : (

@@ -16,6 +16,7 @@ import GetStartedContainer from "./GetStartedContainer";
 import ActionItemsContainer from "./ActionItemsContainer";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useUser } from "../../UserContext";
+import ActiveHealthPlan from "./comp/ActiveHealthPlan";
 
 // import { stackScreens } from "../../Navigation/BottomTabNavigation"; // Make sure this path is correct
 
@@ -33,7 +34,12 @@ type ProfileScreenProps = NativeStackScreenProps<stackScreens, "Profile">;
 // Define the prop type for ProfileScreen
 
 const ProfileScreen = (props: ProfileScreenProps) => {
-  const { userDetails, setIsAuthenticated } = useUser();
+  const {
+    userDetails,
+    setIsAuthenticated,
+    isPlanActivated,
+    setIsPlanActivated,
+  } = useUser();
   console.log("username : ", userDetails.name);
   const { navigation } = props;
   const handleSignOut = async () => {
@@ -44,9 +50,34 @@ const ProfileScreen = (props: ProfileScreenProps) => {
       routes: [{ name: "Register" }], // Navigate back to login screen in stack navigation
     });
   };
-
+  const [name, setName] = useState();
   //const [step, setStep] = useState(0); //for updating the step taken, [ie.., upload doc, more info ,submit]
+  useEffect(() => {
+    // Define the async function inside the useEffect
+    const checkPlanActivation = async () => {
+      try {
+        let value = (await AsyncStorage.getItem("SavedData")) as any;
 
+        if (value) {
+          value = JSON.parse(value) as any;
+          console.log("v ", value?.userDetails);
+          console.log("there is a value");
+          setIsPlanActivated(true);
+          const firstName = value?.userDetails?.name?.split(" ")[0]; // Extract the first name
+          setName(firstName);
+        } else {
+          setIsPlanActivated(false);
+        }
+      } catch (error) {
+        console.error("Error checking SavedData in AsyncStorage:", error);
+      }
+    };
+
+    checkPlanActivation(); // Call the async function
+    console.log("value :", isPlanActivated);
+    console.log("value of name :", name);
+  }, []);
+  console.log("value of name :", name);
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -66,7 +97,7 @@ const ProfileScreen = (props: ProfileScreenProps) => {
           </View>
 
           <View style={styles.textContainer}>
-            <Text style={styles.JohnTitle}> Hi John,</Text>
+            <Text style={styles.JohnTitle}> {name && `Hi ${name},`}</Text>
             <Text style={styles.textStyle}>
               Welcome to Virtual Care App.{"\n"}
               Update your medical docs and generate a health plan
@@ -77,13 +108,16 @@ const ProfileScreen = (props: ProfileScreenProps) => {
       {/* Bottom Main Container */}
       <View style={styles.bottomMainContainer}>
         {/* Icon Container */}
-        <GetStartedContainer />
-
-        {/* <View style={styles.line} /> */}
-
-        {/* Action Items Container  */}
-
-        <ActionItemsContainer navigation={navigation} route={props.route} />
+        {isPlanActivated ? (
+          <>
+            <ActiveHealthPlan />
+          </>
+        ) : (
+          <>
+            <GetStartedContainer />
+            <ActionItemsContainer navigation={navigation} route={props.route} />
+          </>
+        )}
       </View>
     </View>
   );

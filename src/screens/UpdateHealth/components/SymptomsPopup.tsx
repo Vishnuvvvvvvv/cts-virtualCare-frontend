@@ -91,7 +91,7 @@ const SymptomsPopup = ({
       // });
 
       const response = await axios.post(
-        "http://192.168.1.9:3000/transcribe",
+        "http://192.168.1.7:3000/transcribe",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

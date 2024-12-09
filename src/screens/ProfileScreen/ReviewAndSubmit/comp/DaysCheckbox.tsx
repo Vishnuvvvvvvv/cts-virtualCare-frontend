@@ -42,13 +42,20 @@ const DaysCheckbox = ({ selectedDays, onChange }: DaysCheckboxProps) => {
 const styles = StyleSheet.create({
   checkboxContainer: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    marginTop: 10,
+    // flexWrap: "wrap",
+    marginTop: 5,
+    // backgroundColor: "red",
+    width: "100%",
+    justifyContent: "space-evenly",
   },
   dayButton: {
-    padding: 10,
-    margin: 5,
+    padding: 5,
+    margin: 2,
     borderRadius: 5,
+    width: "12%",
+    textAlign: "center",
+    justifyContent: "center",
+    alignItems: "center",
   },
   selected: {
     backgroundColor: "green",

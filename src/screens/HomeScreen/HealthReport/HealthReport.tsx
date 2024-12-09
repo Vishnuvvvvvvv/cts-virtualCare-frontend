@@ -1,8 +1,18 @@
-import React, { useState } from "react";
-import { StyleSheet, Text, View, Button, Alert } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  Alert,
+  TouchableOpacity,
+  Image,
+} from "react-native";
 import * as FileSystem from "expo-file-system";
 import * as Print from "expo-print"; // Import expo-print
 import * as Sharing from "expo-sharing"; // Import expo-sharing
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 const PatientReport = () => {
   const patientDetails = {
@@ -12,19 +22,101 @@ const PatientReport = () => {
     illness: "Acute Myocardial Infarction",
   };
 
-  const medications = ["Paracetamol", "Xyz Tablets", "ABC Tabs"];
+  //   const medications = ["Paracetamol", "Xyz Tablets", "ABC Tabs"];
+  const [medications, setMedications] = useState([] as any);
+  const [fullDetails, setFullDetails] = useState({} as any);
+  const [summary, setSummary] = useState("Preparing summary...");
 
-  const [summary, setSummary] = useState(
-    "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat, tempore neque dignissimos esse praesentium voluptatibus accusantium voluptas sequi suscipit. Nihil consequuntur dolore excepturi est perspiciatis ad quod officia velit praesentium? "
-  );
-
-  const medicatn = medications.map((med, index) => {
+  const medicatn = medications?.map((med: any, index: any) => {
     return (
       <View key={index}>
-        <Text style={styles.listItem}>• {med}</Text>
+        <Text style={styles.listItem}>• {med.medicine_name}</Text>
       </View>
     );
   });
+
+  const prepareAndSendSummary = async () => {
+    try {
+      // Fetch all keys
+      const allKeys = await AsyncStorage.getAllKeys();
+
+      // Filter relevant keys
+      const savedDataKey = "SavedData";
+      const symptomKeys = allKeys.filter((key) => key.startsWith("symptoms-"));
+      const reminderKeys = allKeys.filter((key) =>
+        key.startsWith("todaysReminders-")
+      );
+
+      // Fetch data for these keys
+      const savedData = await AsyncStorage.getItem(savedDataKey);
+      const symptomsData = await Promise.all(
+        symptomKeys.map(async (key) => ({
+          date: key.replace("symptoms-", ""),
+          value: await AsyncStorage.getItem(key),
+        }))
+      );
+
+      const remindersData = await Promise.all(
+        reminderKeys.map(async (key) => ({
+          date: key.replace("todaysReminders-", ""),
+          value: await AsyncStorage.getItem(key),
+        }))
+      );
+
+      // Structure the data
+      const summaryObject = {
+        savedData: savedData ? JSON.parse(savedData) : null,
+        symptoms: symptomsData.reduce((acc: any, { date, value }) => {
+          acc[date] = value;
+          return acc;
+        }, {}),
+        todaysReminders: remindersData.reduce((acc: any, { date, value }) => {
+          acc[date] = JSON.parse(value || "{}");
+          return acc;
+        }, {}),
+      };
+
+      console.log("Prepared Summary Object:", summaryObject);
+      setFullDetails(summaryObject);
+
+      // Send to backend
+      //   const response = await axios.post(
+      //     "https://192.168.1.3/summarize",
+      //     summaryObject
+      //   );
+      //   console.log("Backend Response:", response.data);
+      return summaryObject;
+    } catch (error) {
+      console.error("Error preparing or sending summary:", error);
+    }
+  };
+
+  let summaryObject = {} as any;
+
+  useEffect(() => {
+    if (summaryObject)
+      setMedications(fullDetails?.savedData?.discharge_details?.prescription);
+  }, [fullDetails]);
+
+  useEffect(() => {
+    async function fetchSummary() {
+      summaryObject = await prepareAndSendSummary();
+      console.log(
+        "medicatiosn : ",
+        fullDetails?.savedData?.discharge_details?.prescription
+      );
+
+      //   console.log("going to next");
+      const response = await axios.post("http://192.168.1.7:3001/summarize", {
+        summaryObject,
+      });
+      console.log("going to next 2");
+      console.log("summ : ", response.data);
+      setSummary(response.data.summary); // Save the response for rendering
+    }
+
+    fetchSummary();
+  }, []);
 
   const getTodayDate = () => {
     const today = new Date();
@@ -39,7 +131,7 @@ const PatientReport = () => {
     // HTML content to generate the PDF
 
     const medicationList = medications
-      .map((med, index) => {
+      .map((med: any, index: any) => {
         return `• ${med}`;
       })
       .join("<br />");
@@ -86,35 +178,46 @@ const PatientReport = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.downloadButton}>
+      {/* <View style={styles.downloadButton}>
         <Button title="Download PDF" onPress={downloadReport} />
+      </View> */}
+      <View style={styles.downloadButton}>
+        <TouchableOpacity onPress={downloadReport}>
+          {/* <Icon name="download" size={30} color="#000" />  */}
+          {/* Replace name="download" with the specific icon name you prefer */}
+
+          <Image
+            style={styles.downloadIcon}
+            source={require("../../../../assets/homeScreen/DownloadIcon.png")}
+          ></Image>
+        </TouchableOpacity>
       </View>
 
       <Text style={styles.dateRange}>
-        Dated: 12-06-2023 to {getTodayDate()}
+        Dated: {fullDetails?.savedData?.PlanActivatedDate} to {getTodayDate()}
       </Text>
 
       <View style={styles.card}>
         <Text style={styles.cardText}>
           <Text style={styles.cardTitle}>Patient Name: </Text>
-          {patientDetails.name}
+          {fullDetails?.savedData?.userDetails?.name}
         </Text>
         <Text style={styles.cardText}>
           <Text style={styles.cardTitle}>Age: </Text>
-          {patientDetails.age}
+          {fullDetails?.savedData?.userDetails?.age}
         </Text>
         <Text style={styles.cardText}>
           <Text style={styles.cardTitle}>Blood Group: </Text>
-          {patientDetails.bloodGroup}
+          {fullDetails?.savedData?.userDetails?.gender}
         </Text>
         <Text style={styles.cardText}>
           <Text style={styles.cardTitle}>Prescribed Illness: </Text>
-          {patientDetails.illness}
+          {fullDetails?.savedData?.userDetails?.prescribed_illness}
         </Text>
       </View>
 
       <Text style={styles.sectionTitle}>Medication Details</Text>
-      {medicatn}
+      {medications && medicatn}
 
       <Text style={styles.sectionTitle}>Report Summary</Text>
       <Text>{summary}</Text>
@@ -128,7 +231,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    paddingTop: "20%",
+    paddingTop: "10%",
     backgroundColor: "#f8f8f8",
   },
   dateRange: {
@@ -168,8 +271,17 @@ const styles = StyleSheet.create({
   },
   downloadButton: {
     position: "absolute",
-    top: 40,
+    top: 30,
     right: 25,
     zIndex: 10,
+    // backgroundColor: "",
+  },
+  // iconButton: {
+  //   justifyContent: "center",
+  //   alignItems: "center",
+  // },
+  downloadIcon: {
+    width: 30,
+    height: 30,
   },
 });

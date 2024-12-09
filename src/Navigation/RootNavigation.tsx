@@ -11,6 +11,9 @@ import AdditionalInfo from "../screens/ProfileScreen/AdditionalInfo/AdditionalIn
 import ReviewAndSubmit from "../screens/ProfileScreen/ReviewAndSubmit/ReviewAndSubmit";
 import { useUser } from "../../src/UserContext";
 import UpdateMedicationDetails from "../screens/UpdateHealth/components/UpdateMedicationDetails";
+import DailyMedication from "../screens/HomeScreen/DailyMedication/DailyMedication";
+import HealthReport from "../screens/HomeScreen/HealthReport/HealthReport";
+import Medications from "../screens/HomeScreen/Medications/Medications";
 
 export type stackScreens = {
   TabNavigation: undefined;
@@ -24,6 +27,9 @@ export type stackScreens = {
   AdditionalInfo: undefined;
   ReviewAndSubmit: undefined;
   UpdateMedicationDetails: undefined;
+  DailyMedication: undefined;
+  HealthReport: undefined;
+  Medications: undefined;
 };
 
 const Stack = createNativeStackNavigator<stackScreens>();
@@ -82,6 +88,22 @@ const RootNavigation = () => {
             name="UpdateMedicationDetails"
             component={UpdateMedicationDetails}
             options={{ headerShown: true, title: "Update Medication Details" }}
+          />
+
+          <Stack.Screen
+            name="DailyMedication"
+            component={DailyMedication}
+            options={{ headerShown: true, title: "Daily Medication" }}
+          />
+          <Stack.Screen
+            name="HealthReport"
+            component={HealthReport}
+            options={{ headerShown: true, title: "Health Report" }}
+          />
+          <Stack.Screen
+            name="Medications"
+            component={Medications}
+            options={{ headerShown: true, title: "Medications" }}
           />
         </>
       ) : (

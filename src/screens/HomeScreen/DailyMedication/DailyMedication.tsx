@@ -333,9 +333,10 @@ const styles = StyleSheet.create({
 
     justifyContent: "center",
     alignItems: "center",
-    paddingTop: "10%",
+    paddingTop: "1%",
     backgroundColor: "#FFFFFF",
     height: "100%",
+    paddingBottom: "10%",
   },
   header: {
     fontSize: 24,

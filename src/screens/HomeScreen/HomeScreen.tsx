@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   StyleSheet,
@@ -10,18 +10,53 @@ import {
   Dimensions,
   Platform,
 } from "react-native";
-
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { stackScreens } from "../../Navigation/RootNavigation";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 // Get screen dimensions
 const { width, height } = Dimensions.get("window");
 
-const HomeScreen = () => {
+type propsType = NativeStackScreenProps<stackScreens, "HomeScreen">;
+
+const HomeScreen = (props: propsType) => {
+  const { navigation } = props;
+  // Declare state for storing parsed data
+  const [userData, setUserData] = useState<any>({});
+
+  // Fetch and parse data from AsyncStorage
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        let data = await AsyncStorage.getItem("SavedData");
+        if (data) {
+          const parsedData = JSON.parse(data);
+          console.log(
+            "Parsed data: ",
+            parsedData.discharge_details.prescription
+          );
+          setUserData(parsedData); // Store parsed data in state
+        }
+      } catch (error) {
+        console.error("Error fetching savedData:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handlePressDailyMedication = () => {
+    console.log("daily medications clicked");
+    // Navigate to the Daily Medicine screen
+    navigation.navigate("DailyMedication");
+  };
   return (
     // <ScrollView contentContainerStyle={styles.container}>
     <View style={styles.container}>
       {/* Header Section */}
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Virtual Care</Text>
-        <View style={styles.circle}></View>
+        {/* <View style={styles.circle}></View> */}
       </View>
 
       {/* Profile Section */}
@@ -31,10 +66,26 @@ const HomeScreen = () => {
             source={require("../../../assets/homeScreen/Helping.png")} // Replace with profile image URL
             style={styles.profileImageLarge}
           />
-          <View>
-            <Text style={styles.profileText}>Name: John David</Text>
-            <Text style={styles.profileText}>Age: 54 years</Text>
-            <Text style={styles.profileText}>Gender: Male</Text>
+
+          {/* {userData && (
+            <View style={{ height: "100%", width: "50%" }}>
+              <Text style={styles.profileText}>
+                Name: {userData?.userDetails?.name}
+              </Text>
+              <Text style={styles.profileText}>
+                Age: {userData.userDetails?.age} years
+              </Text>
+              <Text style={styles.profileText}>
+                Gender: {userData.userDetails?.gender}
+              </Text>
+            </View>
+          )} */}
+
+          <View style={{ height: "100%", width: "50%" }}>
+            <Text style={styles.headerText}>Virtual Care </Text>
+            <Text style={styles.profileText}>
+              Your Perfect Solution for health Care!
+            </Text>
           </View>
         </View>
       </View>
@@ -45,7 +96,10 @@ const HomeScreen = () => {
         {/* <ScrollView style={styles.remindersContainer} horizontal={true}> */}
 
         <View style={styles.remindersContainer}>
-          <TouchableOpacity style={styles.reminderButton}>
+          <TouchableOpacity
+            style={styles.reminderButton}
+            onPress={handlePressDailyMedication}
+          >
             <Image
               source={require("../../../assets/homeScreen/Capsule.png")}
               style={styles.icon}
@@ -75,14 +129,24 @@ const HomeScreen = () => {
       <View style={styles.section2}>
         <Text style={styles.sectionHeader}>Monitor Health</Text>
         <View style={styles.monitorContainer}>
-          <TouchableOpacity style={styles.monitorButton}>
+          <TouchableOpacity
+            style={styles.monitorButton}
+            onPress={() => {
+              navigation.navigate("Medications");
+            }}
+          >
             <Image
               source={require("../../../assets/homeScreen/Pills.png")}
               style={styles.icon}
             />
             <Text style={styles.buttonText}>Medications</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.monitorButton}>
+          <TouchableOpacity
+            style={styles.monitorButton}
+            onPress={() => {
+              navigation.navigate("HealthReport");
+            }}
+          >
             <Image
               source={require("../../../assets/homeScreen/HealthReport.png")}
               style={styles.icon}
@@ -134,6 +198,9 @@ const styles = StyleSheet.create({
     fontSize: width * 0.06, // Responsive font size
     fontWeight: "bold",
     color: "#5a3d8e",
+    textShadowColor: "rgba(0, 0, 0, 0.5)", // Black shadow with transparency
+    textShadowOffset: { width: 1, height: 1 }, // Shadow offset (horizontal and vertical)
+    textShadowRadius: 3,
   },
   circle: {
     width: width * 0.07, // Circle size based on screen width
@@ -148,7 +215,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: width * 0.05,
     height: "20%",
-
+    marginTop: "2%",
     // Shadow for iOS
     shadowColor: "#000", // Shadow color
     shadowOffset: { width: 0, height: 4 }, // Shadow position
@@ -165,8 +232,12 @@ const styles = StyleSheet.create({
     // height: "10%",
   },
   profileText: {
-    fontSize: width * 0.045,
-    color: "#5a3d8e",
+    fontSize: width * 0.04,
+    paddingTop: 10,
+    color: "white",
+    textShadowColor: "rgba(0, 0, 0, 0.5)", // Black shadow with transparency
+    textShadowOffset: { width: 1, height: 1 }, // Shadow offset (horizontal and vertical)
+    textShadowRadius: 3, // Blur radius
   },
   profileImageLarge: {
     width: width * 0.3,
