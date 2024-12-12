@@ -7,6 +7,8 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { stackScreens } from "../../Navigation/RootNavigation";
 // import { stackScreens as stackScreens2 }  from "../../Navigation/RootNavigation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { API } from "../../apiConfig";
 
 type propsType = NativeStackScreenProps<stackScreens, "updateHealth">;
 
@@ -65,7 +67,7 @@ const UpdateHealth = (props: propsType) => {
   };
  */
 
-  const handleSaveSymptoms = async () => {
+  /** const handleSaveSymptoms = async () => {
     const currentDate = getCurrentDate(); // Get the current date
 
     try {
@@ -96,6 +98,37 @@ const UpdateHealth = (props: propsType) => {
 
     // Close the modal and clear the symptoms input field
     setModalVisible(false);
+    setSymptoms(""); // Clear input
+  };
+ */
+
+  const [userId, setUserId] = useState("John David");
+
+  const handleSaveSymptoms = async () => {
+    const currentDate = getCurrentDate(); // Get the current date
+    const symptomsText = symptoms; // The symptom text entered by the user
+
+    try {
+      // const response = await axios.post('http://192.168.1.6:6000/api/saveSymptoms', {
+      //   userId: "123", // Replace with actual user ID
+      //   symptomsText,
+      //   date: currentDate,
+      // });
+      console.log(":====:", API.STORE_SYMPTOMS);
+      const response = await axios.post(`${API.STORE_SYMPTOMS}`, {
+        userId: userId, // Replace with actual user ID
+        symptomsText,
+        date: currentDate,
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        console.log("Symptoms saved successfully!");
+      }
+    } catch (error) {
+      console.error("Error saving symptoms:", error);
+    }
+
+    // Clear the input field after saving
     setSymptoms(""); // Clear input
   };
 

@@ -35,59 +35,101 @@ const PatientReport = () => {
     );
   });
 
+  //   const prepareAndSendSummary = async () => {
+  //     try {
+  //       // Fetch all keys
+  //       const allKeys = await AsyncStorage.getAllKeys();
+
+  //       // Filter relevant keys
+  //       const savedDataKey = "SavedData";
+  //       const symptomKeys = allKeys.filter((key) => key.startsWith("symptoms-"));
+  //       const reminderKeys = allKeys.filter((key) =>
+  //         key.startsWith("todaysReminders-")
+  //       );
+
+  //       // Fetch data for these keys
+  //       const savedData = await AsyncStorage.getItem(savedDataKey);
+  //       const symptomsData = await Promise.all(
+  //         symptomKeys.map(async (key) => ({
+  //           date: key.replace("symptoms-", ""),
+  //           value: await AsyncStorage.getItem(key),
+  //         }))
+  //       );
+
+  //       const remindersData = await Promise.all(
+  //         reminderKeys.map(async (key) => ({
+  //           date: key.replace("todaysReminders-", ""),
+  //           value: await AsyncStorage.getItem(key),
+  //         }))
+  //       );
+
+  //       // Structure the data
+  //       const summaryObject = {
+  //         savedData: savedData ? JSON.parse(savedData) : null,
+  //         symptoms: symptomsData.reduce((acc: any, { date, value }) => {
+  //           acc[date] = value;
+  //           return acc;
+  //         }, {}),
+  //         todaysReminders: remindersData.reduce((acc: any, { date, value }) => {
+  //           acc[date] = JSON.parse(value || "{}");
+  //           return acc;
+  //         }, {}),
+  //       };
+
+  //       console.log("Prepared Summary Object:", summaryObject);
+  //       setFullDetails(summaryObject);
+
+  //       // Send to backend
+  //       //   const response = await axios.post(
+  //       //     "https://192.168.1.3/summarize",
+  //       //     summaryObject
+  //       //   );
+  //       //   console.log("Backend Response:", response.data);
+  //       return summaryObject;
+  //     } catch (error) {
+  //       console.error("Error preparing or sending summary:", error);
+  //     }
+  //   };
+
   const prepareAndSendSummary = async () => {
+    const userId = "John David";
+    const date = new Date().toISOString().split("T")[0];
     try {
-      // Fetch all keys
-      const allKeys = await AsyncStorage.getAllKeys();
+      // Fetch data from backend endpoints
+      const [savedDataResponse, symptomsResponse, remindersResponse] =
+        await Promise.all([
+          axios.get(`http://192.168.16.112:6000/getSavedData/${userId}`), // Replace with actual endpoint for saved data
+          axios.get(`http://192.168.16.112:6000/api/getSymptoms/${userId}`),
+          axios.get(
+            `http://192.168.16.112:6000/api/dailyMedicineStatus/${userId}/${date}`
+          ),
+        ]);
 
-      // Filter relevant keys
-      const savedDataKey = "SavedData";
-      const symptomKeys = allKeys.filter((key) => key.startsWith("symptoms-"));
-      const reminderKeys = allKeys.filter((key) =>
-        key.startsWith("todaysReminders-")
-      );
+      // Parse the responses
+      const savedData = savedDataResponse.data; // Assuming it returns saved data directly
+      const symptoms = symptomsResponse.data.symptoms || []; // Assuming it returns a list of symptoms
+      const reminders = remindersResponse.data.medicineSchedule || {}; // Assuming it returns daily reminders
 
-      // Fetch data for these keys
-      const savedData = await AsyncStorage.getItem(savedDataKey);
-      const symptomsData = await Promise.all(
-        symptomKeys.map(async (key) => ({
-          date: key.replace("symptoms-", ""),
-          value: await AsyncStorage.getItem(key),
-        }))
-      );
-
-      const remindersData = await Promise.all(
-        reminderKeys.map(async (key) => ({
-          date: key.replace("todaysReminders-", ""),
-          value: await AsyncStorage.getItem(key),
-        }))
-      );
-
-      // Structure the data
+      // Structure the summary object
       const summaryObject = {
-        savedData: savedData ? JSON.parse(savedData) : null,
-        symptoms: symptomsData.reduce((acc: any, { date, value }) => {
-          acc[date] = value;
-          return acc;
-        }, {}),
-        todaysReminders: remindersData.reduce((acc: any, { date, value }) => {
-          acc[date] = JSON.parse(value || "{}");
-          return acc;
-        }, {}),
+        savedData,
+        symptoms,
+        todaysReminders: reminders,
       };
 
-      console.log("Prepared Summary Object:", summaryObject);
+      console.log("Prepared Summary Object from Backend:", summaryObject);
       setFullDetails(summaryObject);
 
-      // Send to backend
-      //   const response = await axios.post(
-      //     "https://192.168.1.3/summarize",
-      //     summaryObject
-      //   );
-      //   console.log("Backend Response:", response.data);
+      // Send to backend (optional)
+      // const response = await axios.post(
+      //   "https://your-backend-url/summarize",
+      //   summaryObject
+      // );
+      // console.log("Backend Response:", response.data);
+
       return summaryObject;
     } catch (error) {
-      console.error("Error preparing or sending summary:", error);
+      console.error("Error fetching data from backend:", error);
     }
   };
 
@@ -107,9 +149,12 @@ const PatientReport = () => {
       );
 
       //   console.log("going to next");
-      const response = await axios.post("http://192.168.1.7:3001/summarize", {
-        summaryObject,
-      });
+      const response = await axios.post(
+        "http://192.168.16.112:3001/summarize",
+        {
+          summaryObject,
+        }
+      );
       console.log("going to next 2");
       console.log("summ : ", response.data);
       setSummary(response.data.summary); // Save the response for rendering

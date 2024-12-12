@@ -638,6 +638,8 @@ import { stackScreens } from "../../../Navigation/RootNavigation";
 import { useUser } from "../../../UserContext";
 import DaysCheckbox from "./comp/DaysCheckbox";
 import TimeCheckbox from "./comp/TimeCheckbox"; // Import TimeCheckbox
+import axios from "axios";
+import { API } from "../../../apiConfig";
 
 type propsType = NativeStackScreenProps<stackScreens, "ReviewAndSubmit">;
 
@@ -687,6 +689,7 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
     const year = today.getFullYear();
     return `${day}-${month}-${year}`;
   })();
+
   const handleSave = async () => {
     const saveData = {
       userDetails,
@@ -694,13 +697,32 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
       PlanActivatedDate: PlanActivatedDate,
       discharge_details: extractedData?.discharge_details || {},
     };
-    console.log("saved data ", saveData);
+    // console.log("saved data ", saveData);
+    console.log("sending data to server ... ");
     try {
+      console.log("sending data to server 11 ... ");
       await AsyncStorage.setItem("SavedData", JSON.stringify(saveData));
-      Alert.alert("Success", "Health Plan has been Activated successfully!");
-      setStep(3);
-      setIsPlanActivated(true);
-      navigation.goBack(); // Navigate back to the previous screen
+
+      console.log("sending data to server ... ");
+      const response = await axios.post(
+        "http://192.168.16.112:6000/saveData",
+        saveData
+      );
+
+      // const response = await axios.post(`${API.SAVE_EXTRACTED_DATA}`, saveData);
+
+      if (response.status === 200) {
+        Alert.alert("Success", "Health Plan has been Activated successfully!");
+        setStep(3);
+        setIsPlanActivated(true);
+        navigation.goBack(); // Navigate back to the previous screen
+      } else {
+        Alert.alert(
+          "Error",
+          "Failed to activate health plan. Please try again."
+        );
+        setIsPlanActivated(false);
+      }
     } catch (error) {
       setIsPlanActivated(false);
       console.error("Error saving data:", error);

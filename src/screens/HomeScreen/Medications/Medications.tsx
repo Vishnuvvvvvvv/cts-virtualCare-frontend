@@ -1,9 +1,11 @@
 import { FlatList, StyleSheet, Text, View, Image } from "react-native";
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { API } from "../../../apiConfig";
 const Medications = () => {
   const [medications, setMedications] = useState();
-
+  const [userId, setUserId] = useState("John David");
   // Fetch and parse data from AsyncStorage
 
   function processMedicineData(data: any) {
@@ -44,16 +46,34 @@ const Medications = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        let data = await AsyncStorage.getItem("SavedData");
-        if (data) {
-          const parsedData = JSON.parse(data);
-          console.log("Parsed data: ", parsedData.userDetails);
-
-          const processedMedData = processMedicineData(
-            parsedData.discharge_details.prescription
+        // let data = await AsyncStorage.getItem("SavedData");
+        console.log("calling request : ", `${API.GET_SAVED_DATA}/${userId}`);
+        const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
+        if (response.status === 200 && response.data) {
+          console.log(
+            "Fetched prescription data from backend:",
+            response.data?.discharge_details?.prescription
           );
+          const processedMedData = processMedicineData(
+            response.data?.discharge_details?.prescription
+          );
+
+          console.log("prescription ", processedMedData);
           setMedications(processedMedData);
+        } else {
+          console.warn("No prescription data found or failed to fetch");
+          //   setdayWiseMedicinePresciption(null);
         }
+
+        // if (data) {
+        //   const parsedData = JSON.parse(data);
+        //   console.log("Parsed data: ", parsedData.userDetails);
+
+        //   const processedMedData = processMedicineData(
+        //     parsedData.discharge_details.prescription
+        //   );
+        //   setMedications(processedMedData);
+        // }
       } catch (error) {
         console.error("Error fetching savedData:", error);
       }

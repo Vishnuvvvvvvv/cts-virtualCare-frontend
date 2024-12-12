@@ -10,19 +10,38 @@ import { ProgressBar } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useUser } from "../../../UserContext";
 import moment from "moment";
-
+import axios from "axios";
+import { API } from "../../../apiConfig";
 const ActiveHealthPlan: React.FC = () => {
   const [data, setData] = useState<any>(null); // Initialize as null
   const { setIsAuthenticated } = useUser();
+  const [userId, setUserId] = useState("John David");
   useEffect(() => {
     const fetchData = async () => {
       try {
+        /*
         const savedData = await AsyncStorage.getItem("SavedData");
         if (savedData) {
           const parsedData = JSON.parse(savedData);
           console.log("Parsed data: active plan component", parsedData);
           setData(parsedData); // Store parsed data in state
         }
+         */
+        /*** */
+        // const response = await axios.get(
+        //   "http://192.168.1.216:6000/getSavedData"
+        // );
+        console.log(":: ", API.GET_SAVED_DATA);
+        const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
+
+        if (response.status === 200) {
+          console.log("Fetched data from backend:", response.data);
+          setData(response.data); // Store the fetched data in state
+        } else {
+          console.error("Failed to fetch data, status:", response.status);
+        }
+
+        /*** */
       } catch (error) {
         console.error("Error fetching savedData:", error);
       }
