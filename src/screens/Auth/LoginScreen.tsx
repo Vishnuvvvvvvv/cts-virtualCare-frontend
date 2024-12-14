@@ -9,7 +9,7 @@ import {
   Image,
 } from "react-native";
 const { width, height } = Dimensions.get("screen");
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { stackScreens } from "../../Navigation/RootNavigation";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import HorizontalLine from "../../components/HorizontalLine";
@@ -41,6 +41,13 @@ const LoginScreen = (props: propsType) => {
     return false;
   };
 
+  useEffect(() => {
+    const fn = async () => {
+      const keys = await AsyncStorage.getAllKeys();
+      console.log("all keys are : ", keys);
+    };
+    fn();
+  }, []);
   const LoginHandler = async () => {
     console.log("login clciked", username, ": ", password);
 
@@ -102,6 +109,9 @@ const LoginScreen = (props: propsType) => {
 
         await AsyncStorage.setItem("authToken", token);
         await AsyncStorage.setItem("userId", username);
+
+        const userId = await AsyncStorage.getItem("userId");
+        console.log("userId from async on login screen ", userId);
 
         console.log("waiting for checking whether saveddata generated or not");
         const rslt = await checkSavedDataExists(username);

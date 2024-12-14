@@ -46,6 +46,8 @@ const RootNavigation = () => {
   } = useUser();
 
   useEffect(() => {
+    console.log("Inside root navigation...");
+
     const checkAuthStatus = async () => {
       const token = await AsyncStorage.getItem("authToken");
       setIsAuthenticated(!!token); // If token exists, set to true; else false

@@ -19,76 +19,44 @@ const Tab = createBottomTabNavigator<stackScreens>();
 export default function BottomTabNavigation() {
   const [isHomeScreen, setIsHomeScreen] = useState<boolean | null>(null);
 
-  // const ActivePlanStatus = async () => {
-  //   try {
-  //     const planActivated = await AsyncStorage.getItem("planActivated");
-  //     if (planActivated != null)
-  //       if (planActivated === "true") {
-  //         return true;
-  //       } else {
-  //         return false;
-  //       }
-  //   } catch (error) {
-  //     return false;
-  //     console.error("Error fetching userId from AsyncStorage:", error);
-  //   }
-  // };
-
-  // const ActivePlanStatus = async () => {
-  //   try {
-  //     const planActivated = await AsyncStorage.getItem("planActivated");
-  //     if (planActivated === null) {
-  //       console.log("setting to plan activated as false as their is no key in async storage")
-  //       // Key is missing, set default value
-  //       await AsyncStorage.setItem("planActivated", "false");
-  //       return false;
-  //     }
-  //     return planActivated === "true";
-  //   } catch (error) {
-  //     console.error("Error fetching planActivated from AsyncStorage:", error);
-  //     return false; // Default to false in case of an error
-  //   }
-  // };
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Define the async function inside the useEffect
     const checkPlanActivation = async () => {
       try {
-        // let value = (await AsyncStorage.getItem("SavedData")) as any;
+        //delay sometime,  so that the userId gets assigned to correct value.instead of null
 
-        //get the unique userId[username] entered during login/signup...
+        const delay = (ms: any) =>
+          new Promise((resolve) => setTimeout(resolve, ms)); // Function to delay for ms milliseconds
+        await delay(1000);
 
         const userId = await AsyncStorage.getItem("userId");
-        if (userId === null) return;
 
+        if (!userId) {
+          console.warn("No userId found in AsyncStorage.");
+          // setIsHomeScreen(false); // Default state if userId is not found
+          // setLoading(false); // Set loading to false
+
+          return;
+        }
+        console.log("checking user plan exists or not (from bottom tab)");
         const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
         if (response.status === 200) {
-          console.log(`the plan for ${userId} is activated already`);
           setIsHomeScreen(true);
           await AsyncStorage.setItem("planActivated", "true");
-          // console.log("resplo ", response.data.userDetails.name);
-          // const firstName = response?.userDetails?.name?.split(" ")[0]; // Extract the first name
-          // setName(response.data.userDetails.name.split(" ")[0]);
         } else {
-          console.log(`the plan for ${userId} is not activated `);
-          await AsyncStorage.setItem("planActivated", "false");
           setIsHomeScreen(false);
+          await AsyncStorage.setItem("planActivated", "false");
         }
-
-        // if (value) {
-        //   value = JSON.parse(value) as any;
-        //   console.log("v ", value?.userDetails);
-        //   console.log("there is a value");
-        //   setIsPlanActivated(true);
-        // } else {
-        //   setIsPlanActivated(false);
-        // }
       } catch (error) {
-        console.error("Error checking SavedData in AsyncStorage:", error);
+        console.error("Error in checkPlanActivation:", error);
+        setIsHomeScreen(false); // Fail-safe default
+      } finally {
+        setLoading(false); // Ensure loading is set to false after async operation
       }
     };
 
-    checkPlanActivation(); // Call the async function
+    checkPlanActivation();
   }, []);
 
   // useEffect(() => {
@@ -99,8 +67,9 @@ export default function BottomTabNavigation() {
   //   check();
   //   console.log("inside botttomTab navogation status ,", isHomeScreen);
   // }, []);
+  console.log("status of is home screen ", isHomeScreen);
 
-  if (isHomeScreen === null) {
+  if (loading) {
     // Show a loading indicator while checking the plan status
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>

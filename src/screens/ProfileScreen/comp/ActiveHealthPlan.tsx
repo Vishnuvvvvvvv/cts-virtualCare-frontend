@@ -128,7 +128,7 @@ const ActiveHealthPlan: React.FC = () => {
     console.log("startDate in doc ", startDate);
     console.log("endDate in doc ", endDate);
     if (!startDate || !endDate) return 0; // Handle invalid or missing dates
-    // startDate = "13-12-2024";
+    // startDate = "15-06-2022";
     const start = truncateTime(parseDate(startDate));
     const end = truncateTime(parseDate(endDate));
     const today = truncateTime(new Date());
@@ -143,7 +143,7 @@ const ActiveHealthPlan: React.FC = () => {
     const daysElapsed = Math.ceil(
       (today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
     );
-    console.log("day", daysElapsed);
+    console.log("day", daysElapsed + 1);
     return totalDays > 0 ? Math.min(daysElapsed / totalDays, 1) : 0; // Avoid division by zero
   };
 

@@ -85,7 +85,9 @@ const RegistrationScreen = (props: propsType) => {
         setIsAuthenticated(false);
         // Handle reg error
         // console.error("Registration failed", data);
-        setErrorMessage("Error during Signup. Please try again.");
+        if (data.error === "Username or email already exists")
+          setErrorMessage("Username or email already exists");
+        else setErrorMessage("Error during Signup. Please try again.");
       }
     } catch (error) {
       setIsAuthenticated(false);
