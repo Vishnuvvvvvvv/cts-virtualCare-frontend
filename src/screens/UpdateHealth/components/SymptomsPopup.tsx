@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { Audio } from "expo-av";
 import axios from "axios";
+import { API } from "../../../apiConfig";
 
 // This is the symptom popup screen, which gets displayed when the update symptoms is clicked
 type PropsType = {
@@ -90,13 +91,17 @@ const SymptomsPopup = ({
       //   name: "recording.wav",
       // });
 
-      const response = await axios.post(
-        "http://192.168.1.7:3000/transcribe",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
+      // const response = await axios.post(
+      //   "http://192.168.1.7:3000/transcribe",
+      //   formData,
+      //   {
+      //     headers: { "Content-Type": "multipart/form-data" },
+      //   }
+      // );
+
+      const response = await axios.post(`${API.TRANSCRIBE}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       setSymptoms(response.data.text);
     } catch (error) {

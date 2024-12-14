@@ -9,11 +9,13 @@ import {
   ScrollView,
   Dimensions,
   Platform,
+  Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { stackScreens } from "../../Navigation/RootNavigation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useUser } from "../../UserContext";
 // Get screen dimensions
 const { width, height } = Dimensions.get("window");
 
@@ -23,6 +25,28 @@ const HomeScreen = (props: propsType) => {
   const { navigation } = props;
   // Declare state for storing parsed data
   const [userData, setUserData] = useState<any>({});
+  const {
+    // userDetails,
+    // setIsAuthenticated,
+    isPlanActivated,
+    setIsPlanActivated,
+  } = useUser();
+
+  useEffect(() => {
+    const checkActivationStatus = async () => {
+      try {
+        const planActivated = await AsyncStorage.getItem("planActivated");
+
+        // If the key doesn't exist, default to `false`
+        setIsPlanActivated(planActivated === "true");
+      } catch (error) {
+        console.error("Error checking plan activation status:", error);
+        setIsPlanActivated(false); // Fallback to false in case of an error
+      }
+    };
+    checkActivationStatus;
+    console.log("Activation plan status ", isPlanActivated);
+  }, []);
 
   // Fetch and parse data from AsyncStorage
   useEffect(() => {
@@ -43,12 +67,29 @@ const HomeScreen = (props: propsType) => {
     };
 
     fetchData();
+
+    console.log("is plan activated ", isPlanActivated);
   }, []);
 
   const handlePressDailyMedication = () => {
+    // console.log("v", isPlanActivated);
     console.log("daily medications clicked");
     // Navigate to the Daily Medicine screen
     navigation.navigate("DailyMedication");
+  };
+
+  const handleNotActivatedState = () => {
+    console.log("plan is not activated");
+    Alert.alert(
+      "Plan Not Activated",
+      "Please upload your medical documents and generate a health plan.",
+      [
+        {
+          text: "OK",
+          onPress: () => console.log("Dialog closed"),
+        },
+      ]
+    );
   };
   return (
     // <ScrollView contentContainerStyle={styles.container}>
@@ -98,7 +139,11 @@ const HomeScreen = (props: propsType) => {
         <View style={styles.remindersContainer}>
           <TouchableOpacity
             style={styles.reminderButton}
-            onPress={handlePressDailyMedication}
+            onPress={
+              isPlanActivated
+                ? handlePressDailyMedication
+                : handleNotActivatedState
+            }
           >
             <Image
               source={require("../../../assets/homeScreen/Capsule.png")}
@@ -132,7 +177,9 @@ const HomeScreen = (props: propsType) => {
           <TouchableOpacity
             style={styles.monitorButton}
             onPress={() => {
-              navigation.navigate("Medications");
+              isPlanActivated
+                ? navigation.navigate("Medications")
+                : handleNotActivatedState();
             }}
           >
             <Image
@@ -144,7 +191,9 @@ const HomeScreen = (props: propsType) => {
           <TouchableOpacity
             style={styles.monitorButton}
             onPress={() => {
-              navigation.navigate("HealthReport");
+              isPlanActivated
+                ? navigation.navigate("HealthReport")
+                : handleNotActivatedState();
             }}
           >
             <Image

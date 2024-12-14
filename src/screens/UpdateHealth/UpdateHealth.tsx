@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import UpdateComponent from "./components/UpdateComponent";
 import { LinearGradient } from "expo-linear-gradient";
@@ -9,6 +9,7 @@ import { stackScreens } from "../../Navigation/RootNavigation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { API } from "../../apiConfig";
+import { useUser } from "../../UserContext";
 
 type propsType = NativeStackScreenProps<stackScreens, "updateHealth">;
 
@@ -45,7 +46,7 @@ const UpdateHealth = (props: propsType) => {
     const day = String(today.getDate()).padStart(2, "0");
     const month = String(today.getMonth() + 1).padStart(2, "0");
     const year = today.getFullYear();
-    return `${day}-${month}-${year}`;
+    return `${year}-${month}-${day}`;
   };
 
   /**
@@ -102,19 +103,37 @@ const UpdateHealth = (props: propsType) => {
   };
  */
 
-  const [userId, setUserId] = useState("John David");
+  // const [userId, setUserId] = useState("John David");
+
+  const fetchUserId = async () => {
+    try {
+      const storedUserId = await AsyncStorage.getItem("userId");
+      if (storedUserId !== null) {
+        console.log("stored user id in async storage ", storedUserId);
+        return storedUserId; // Update state with the userId from AsyncStorage
+      }
+    } catch (error) {
+      console.error("Error fetching userId from AsyncStorage:", error);
+    }
+  };
 
   const handleSaveSymptoms = async () => {
+    const userId = await fetchUserId();
+
     const currentDate = getCurrentDate(); // Get the current date
     const symptomsText = symptoms; // The symptom text entered by the user
+    console.log("preparing to send ....");
 
     try {
-      // const response = await axios.post('http://192.168.1.6:6000/api/saveSymptoms', {
-      //   userId: "123", // Replace with actual user ID
-      //   symptomsText,
-      //   date: currentDate,
-      // });
-      console.log(":====:", API.STORE_SYMPTOMS);
+      // const response = await axios.post(
+      //   "http://172.18.116.122:6000/api/saveSymptoms",
+      //   {
+      //     userId: userId, // Replace with actual user ID
+      //     symptomsText,
+      //     date: currentDate,
+      //   }
+      // );
+      // console.log(":====:", API.STORE_SYMPTOMS);
       const response = await axios.post(`${API.STORE_SYMPTOMS}`, {
         userId: userId, // Replace with actual user ID
         symptomsText,
@@ -134,26 +153,27 @@ const UpdateHealth = (props: propsType) => {
 
   // Retrieve all data (for display or debugging purposes)
   useEffect(() => {
-    const fetchAllSymptoms = async () => {
+    const fetchAllKeys = async () => {
       try {
         const keys = await AsyncStorage.getAllKeys();
         console.log("keys ", keys);
-        const entries = await AsyncStorage.multiGet(keys);
-        const data = Object.fromEntries(entries);
-        const dd = JSON.stringify(data, null, 2);
-        console.log("All Symptoms Data:", dd);
-        setSymptomsData(data);
+        // const entries = await AsyncStorage.multiGet(keys);
+        // const data = Object.fromEntries(entries);
+        // const dd = JSON.stringify(data, null, 2);
+        // console.log("All Symptoms Data:", dd);
+        // setSymptomsData(data);
       } catch (error) {
         console.error("Error fetching symptoms data:", error);
       }
     };
 
-    fetchAllSymptoms();
-  }, [symptoms]);
+    fetchAllKeys();
+  }, []);
 
-  useEffect(() => {
-    console.log("Updated Symptoms Data:", symptomsData);
-  }, [symptomsData]);
+  // useEffect(() => {
+  //   console.log("Updated Symptoms Data:", symptomsData);
+  // }, [symptomsData]);
+
   const handleCancel = () => {
     // console.log("Updated Symptoms Data:", symptomsData);
     setModalVisible(false);
@@ -167,6 +187,42 @@ const UpdateHealth = (props: propsType) => {
 
   const handleAddNewTestReport = () => {
     console.log("Add New Test Report button clicked");
+  };
+  const {
+    // userDetails,
+    // setIsAuthenticated,
+    isPlanActivated,
+    setIsPlanActivated,
+  } = useUser();
+
+  useEffect(() => {
+    const checkActivationStatus = async () => {
+      try {
+        const planActivated = await AsyncStorage.getItem("planActivated");
+
+        // If the key doesn't exist, default to `false`
+        setIsPlanActivated(planActivated === "true");
+      } catch (error) {
+        console.error("Error checking plan activation status:", error);
+        setIsPlanActivated(false); // Fallback to false in case of an error
+      }
+    };
+    checkActivationStatus;
+    console.log("Activation plan status ", isPlanActivated);
+  }, []);
+
+  const handleNotActivatedState = () => {
+    console.log("plan is not activated");
+    Alert.alert(
+      "Plan Not Activated",
+      "Please upload your medical documents and generate a health plan.",
+      [
+        {
+          text: "OK",
+          onPress: () => console.log("Dialog closed"),
+        },
+      ]
+    );
   };
 
   return (
@@ -185,12 +241,18 @@ const UpdateHealth = (props: propsType) => {
 
       <UpdateComponent
         text={"Update Symptoms"}
-        onPress={handleUpdateSymptoms} // Call console.log() here
+        onPress={
+          isPlanActivated ? handleUpdateSymptoms : handleNotActivatedState
+        } // Call console.log() here
       />
 
       <UpdateComponent
         text={"Update Medication Details"}
-        onPress={handleUpdateMedicationDetails} // Call console.log() here
+        onPress={
+          isPlanActivated
+            ? handleUpdateMedicationDetails
+            : handleNotActivatedState
+        } // Call console.log() here
       />
       <UpdateComponent
         text={"Add New Test Report"}

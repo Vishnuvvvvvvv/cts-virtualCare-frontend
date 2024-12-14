@@ -7,7 +7,7 @@ import { useUser } from "../../../UserContext";
 import axios from "axios";
 import { API } from "../../../apiConfig";
 const DailyMedication = () => {
-  const [userId, setUserId] = useState("John David") as any;
+  //   const [userId, setUserId] = useState<any>(null);
 
   const daysOfWeek = [
     "Sunday",
@@ -24,8 +24,28 @@ const DailyMedication = () => {
   const { isPlanActivated } = useUser();
 
   //   if (!isPlanActivated) return;
+  const fetchUserId = async () => {
+    try {
+      const storedUserId = await AsyncStorage.getItem("userId");
+      if (storedUserId !== null) {
+        console.log("stored user id in async storage ", storedUserId);
+        return storedUserId; // Update state with the userId from AsyncStorage
+      }
+    } catch (error) {
+      console.error("Error fetching userId from AsyncStorage:", error);
+    }
+  };
+
+  //   useEffect(() => {
+  //     const fetchUID = async () => {
+  //       const userId = await fetchUserId();
+  //       setUserId(userId);
+  //     };
+  //     fetchUID();
+  //   }, []);
 
   useEffect(() => {
+    // if (!userId) return;
     const fetchPrescriptionData = async () => {
       try {
         // Retrieve the saved data from AsyncStorage
@@ -48,11 +68,12 @@ const DailyMedication = () => {
         // const response = await axios.get(
         //   "http://192.168.1.6:6000/getSavedData"
         // );
-        console.log("get saved data: ", API.GET_SAVED_DATA);
+        const userId = await fetchUserId();
+        // console.log("get saved data: ", API.GET_SAVED_DATA);
         const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
         if (response.status === 200 && response.data) {
           console.log(
-            "Fetched prescription data from backend:",
+            "Succefully Fetched prescription data from backend:",
             response.data?.discharge_details?.prescription
           );
           setdayWiseMedicinePresciption(
@@ -71,10 +92,10 @@ const DailyMedication = () => {
     };
 
     fetchPrescriptionData();
-    console.log("the data is :", dayWiseMedicinePresciption);
-  }, [isPlanActivated]);
+    // console.log("the data is :", dayWiseMedicinePresciption);
+  }, []);
 
-  console.log("the data is here :", dayWiseMedicinePresciption);
+  //   console.log("the data is here :", dayWiseMedicinePresciption);
   const [medicinesForToday, setMedicinesForToday] = useState({
     morning: [] as any,
     noon: [] as any,
@@ -230,6 +251,8 @@ const DailyMedication = () => {
         // );
 
         // http://192.168.1.216:6000/api/dailyMedicineStatus/123/2024-12-12
+        const userId = await fetchUserId();
+
         console.log(
           "ddata is :",
           `${API.GET_DAILY_MEDICINE_STATUS}/${userId}/${date}`
@@ -276,7 +299,7 @@ const DailyMedication = () => {
       }
     };
 
-    const processDayWiseMedicinePrescription = () => {
+    const processDayWiseMedicinePrescription = async () => {
       const today = new Date();
       const date = today.toISOString().split("T")[0]; // Date in YYYY-MM-DD format
 
@@ -301,8 +324,10 @@ const DailyMedication = () => {
       });
 
       // Save processed data to backend
+      const userId = await fetchUserId();
+
       const formattedData = {
-        userId: 231, // Use the actual userId here
+        userId: userId, // Use the actual userId here
         dailyMedicineStatus: [
           {
             date,
@@ -397,11 +422,13 @@ const DailyMedication = () => {
   //     // );
   //   };
 
-  const updateMedicineStatus = (
+  const updateMedicineStatus = async (
     timeSlot: TimeSlot,
     name: string,
     newStatus: string
   ) => {
+    const userId = await fetchUserId();
+
     setMedicinesForToday((prevState) => {
       const updatedState = { ...prevState };
       console.log("hey");
@@ -412,8 +439,10 @@ const DailyMedication = () => {
       );
 
       // Prepare data for the backend
+
       const today = new Date();
       const date = today.toISOString().split("T")[0]; // YYYY-MM-DD format
+
       const formattedData = {
         userId: userId, // Replace with actual user ID
         dailyMedicineStatus: [

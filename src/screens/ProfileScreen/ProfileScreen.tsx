@@ -17,6 +17,8 @@ import ActionItemsContainer from "./ActionItemsContainer";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useUser } from "../../UserContext";
 import ActiveHealthPlan from "./comp/ActiveHealthPlan";
+import { API } from "../../apiConfig";
+import axios from "axios";
 
 // import { stackScreens } from "../../Navigation/BottomTabNavigation"; // Make sure this path is correct
 
@@ -35,39 +37,96 @@ type ProfileScreenProps = NativeStackScreenProps<stackScreens, "Profile">;
 
 const ProfileScreen = (props: ProfileScreenProps) => {
   const {
-    userDetails,
+    // userDetails,
     setIsAuthenticated,
     isPlanActivated,
     setIsPlanActivated,
   } = useUser();
-  console.log("username : ", userDetails.name);
+
+  // console.log("username : ", userDetails.name);
   const { navigation } = props;
+
   const handleSignOut = async () => {
-    await AsyncStorage.removeItem("authToken");
+    await AsyncStorage.clear();
+    // await AsyncStorage.removeItem("authToken");
     setIsAuthenticated(false);
+    setIsPlanActivated(false);
+    // await AsyncStorage.setItem("planActivated", "false");
     navigation.reset({
       index: 0,
       routes: [{ name: "Register" }], // Navigate back to login screen in stack navigation
     });
   };
-  const [name, setName] = useState();
+
+  const [name, setName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getUserName = async () => {
+      try {
+        const userId = await AsyncStorage.getItem("userId");
+        if (!userId) {
+          console.error("User ID not found in AsyncStorage");
+          return;
+        }
+        const response = await axios.get(`${API.GET_USER_DETAILS}/${userId}`);
+        if (response.status === 200) {
+          let userDetails = response.data;
+          console.log(
+            "user details fetched from backend (loding profile page)",
+            userDetails
+          );
+          setName(userDetails?.name);
+          await AsyncStorage.setItem(
+            "userDetails",
+            JSON.stringify(userDetails)
+          );
+        } else {
+          console.error("Unexpected response status:", response.status);
+        }
+      } catch (error) {
+        console.error(
+          "Eror occcured in loading data from async storage or use deatails api call"
+        );
+      }
+    };
+    getUserName();
+  }, []);
+
+  // const [userId, setUserId] = useState("John David");
+
   //const [step, setStep] = useState(0); //for updating the step taken, [ie.., upload doc, more info ,submit]
   useEffect(() => {
     // Define the async function inside the useEffect
     const checkPlanActivation = async () => {
       try {
-        let value = (await AsyncStorage.getItem("SavedData")) as any;
+        // let value = (await AsyncStorage.getItem("SavedData")) as any;
 
-        if (value) {
-          value = JSON.parse(value) as any;
-          console.log("v ", value?.userDetails);
-          console.log("there is a value");
+        //get the unique userId[username] entered during login/signup...
+
+        const userId = await AsyncStorage.getItem("userId");
+
+        const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
+        if (response.status === 200) {
+          console.log(`the plan for ${userId} is activated already`);
           setIsPlanActivated(true);
-          const firstName = value?.userDetails?.name?.split(" ")[0]; // Extract the first name
-          setName(firstName);
+          await AsyncStorage.setItem("planActivated", "true");
+          // console.log("resplo ", response.data.userDetails.name);
+          // const firstName = response?.userDetails?.name?.split(" ")[0]; // Extract the first name
+          // setName(response.data.userDetails.name.split(" ")[0]);
         } else {
+          console.log(`the plan for ${userId} is not activated `);
+          await AsyncStorage.setItem("planActivated", "false");
           setIsPlanActivated(false);
         }
+
+        // if (value) {
+        //   value = JSON.parse(value) as any;
+        //   console.log("v ", value?.userDetails);
+        //   console.log("there is a value");
+        //   setIsPlanActivated(true);
+        // } else {
+        //   setIsPlanActivated(false);
+        // }
       } catch (error) {
         console.error("Error checking SavedData in AsyncStorage:", error);
       }
@@ -76,7 +135,7 @@ const ProfileScreen = (props: ProfileScreenProps) => {
     checkPlanActivation(); // Call the async function
     console.log("value :", isPlanActivated);
     console.log("value of name :", name);
-  }, []);
+  }, [isPlanActivated]);
   console.log("value of name :", name);
   return (
     <View style={styles.container}>
@@ -97,10 +156,12 @@ const ProfileScreen = (props: ProfileScreenProps) => {
           </View>
 
           <View style={styles.textContainer}>
-            <Text style={styles.JohnTitle}> {name && `Hi ${name},`}</Text>
+            <Text style={styles.JohnTitle}> {name && ` Hi ${name},`}</Text>
             <Text style={styles.textStyle}>
-              Welcome to Virtual Care App.{"\n"}
-              Update your medical docs and generate a health plan
+              {"\n"}Welcome to Virtual Care App.{"\n"}
+              {!isPlanActivated
+                ? `Update your medical docs and generate a health plan`
+                : "Your health plan is now active! Have a great day.."}
             </Text>
           </View>
         </View>
@@ -168,11 +229,11 @@ const styles = StyleSheet.create({
     color: "white",
     paddingLeft: 10,
     paddingRight: 20,
-    top: "61%",
+    top: "60%",
     height: "40%",
   },
   JohnTitle: {
-    top: "60%",
+    top: "68%",
     fontSize: 24, // Adjust font size as needed
     fontWeight: "bold", // Make it bold
     color: "white",

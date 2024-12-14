@@ -1,17 +1,32 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useState } from "react";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useState } from "react";
 import InputField from "../components/InputField";
 import { Picker } from "@react-native-picker/picker";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { stackScreens } from "../Navigation/RootNavigation";
 import { useUser } from "../UserContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { API } from "../apiConfig";
 
 type propsType = NativeStackScreenProps<stackScreens, "basicDetailFillUp">;
+interface UserDetails {
+  userId: string;
+  name: string;
+  age: string; // Changed to string to align with text input
+  dateOfBirth: string; // Date of birth as a string
+  gender: string; // Gender as a string
+}
 
 const BasicDetailsFillup = (props: propsType) => {
   const { navigation } = props;
-  const { userDetails, setUserDetails } = useUser();
+  const [userDetails, setUserDetails] = useState<UserDetails>({
+    userId: "",
+    name: "", // Default empty string for name
+    age: "", // Default empty string for age, to align with text input
+    dateOfBirth: "", // Default empty string for date of birth
+    gender: "", // Gender as a string
+  });
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   // Handlers for updating userDetails context
@@ -43,16 +58,35 @@ const BasicDetailsFillup = (props: propsType) => {
     }));
   };
 
+  useEffect(() => {
+    const fetchUserId = async () => {
+      const storedUserId = await AsyncStorage.getItem("userId");
+      setUserDetails((prevDetails) => ({
+        ...prevDetails,
+        userId: storedUserId || "defaultId",
+      }));
+    };
+    fetchUserId();
+  }, []);
+
   const storeUserData = async () => {
     try {
-      // Store userDetails in AsyncStorage as a JSON string
-
-      await AsyncStorage.setItem("userDetails", JSON.stringify(userDetails));
-      const storedUserDetails = await AsyncStorage.getItem("userDetails");
-      console.log(
-        "userDetails :: ",
-        storedUserDetails ? JSON.parse(storedUserDetails) : null
+      const response = await axios.post(
+        `${API.SAVE_USER_DETAILS}`,
+        userDetails
       );
+      if (response.status === 201) {
+        console.log("Success", "User details saved successfully");
+      } else {
+        Alert.alert("Error", "An unexpected response occurred");
+      }
+
+      // await AsyncStorage.setItem("userDetails", JSON.stringify(userDetails));
+      // const storedUserDetails = await AsyncStorage.getItem("userDetails");
+      // console.log(
+      //   "userDetails :: ",
+      //   storedUserDetails ? JSON.parse(storedUserDetails) : null
+      // );
     } catch (error) {
       console.error("Error storing user data:", error);
     }

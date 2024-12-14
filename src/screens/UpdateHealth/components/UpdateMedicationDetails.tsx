@@ -6,23 +6,103 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { API } from "../../../apiConfig";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const UpdateMedicationDetails = () => {
-  const [medications, setMedications] = useState([
-    {
-      id: "1",
-      name: "Tab Ceftum",
-      days: "M, Tu, W, Th, Fr",
-      time: "M, N, E, Nt",
-    },
-    {
-      id: "2",
-      name: "Tab WysoLone",
-      days: "M, Tu, W, Th, Fr",
-      time: "M, N, E, Nt",
-    },
-  ]);
+  const fetchUserId = async () => {
+    try {
+      const storedUserId = await AsyncStorage.getItem("userId");
+      if (storedUserId !== null) {
+        console.log("stored user id in async storage ", storedUserId);
+        return storedUserId; // Update state with the userId from AsyncStorage
+      }
+    } catch (error) {
+      console.error("Error fetching userId from AsyncStorage:", error);
+    }
+  };
+
+  const [medications, setMedications] = useState();
+  // const [userId, setUserId] = useState("John David");
+  // Fetch and parse data from AsyncStorage
+
+  function processMedicineData(data: any) {
+    // Mapping binary index to day strings
+    const dayMapping = ["Mn", "Tu", "Wd", "Th", "Fr", "Sa", "Su"];
+    // Mapping binary index to time strings
+    const timeMapping = ["Mn", "Nn", "Ev", "Nt"];
+
+    // Process each item in the data array
+    return data.map((item: any) => {
+      // Convert binary days to readable format
+      const daysArray = item.days.split("");
+      const readableDays = daysArray
+        .map((value: any, index: any) =>
+          value === "1" ? dayMapping[index] : null
+        )
+        .filter(Boolean)
+        .join(", ");
+
+      // Convert binary time to readable format
+      const timeArray = item.time.split("");
+      const readableTime = timeArray
+        .map((value: any, index: any) =>
+          value === "1" ? timeMapping[index] : null
+        )
+        .filter(Boolean)
+        .join(", ");
+
+      // Return the processed item with updated fields
+      return {
+        ...item,
+        days: readableDays,
+        time: readableTime,
+      };
+    });
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const userId = await fetchUserId();
+        console.log("calling request : ", `${API.GET_SAVED_DATA}/${userId}`);
+        const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
+
+        if (response.status === 200 && response.data) {
+          console.log(
+            "Fetched prescription data from backend:",
+            response.data?.discharge_details?.prescription
+          );
+          const processedMedData = processMedicineData(
+            response.data?.discharge_details?.prescription
+          );
+
+          console.log("prescription ", processedMedData);
+          setMedications(processedMedData);
+        } else {
+          console.warn("No prescription data found or failed to fetch");
+          //   setdayWiseMedicinePresciption(null);
+        }
+
+        // if (data) {
+        //   const parsedData = JSON.parse(data);
+        //   console.log("Parsed data: ", parsedData.userDetails);
+
+        //   const processedMedData = processMedicineData(
+        //     parsedData.discharge_details.prescription
+        //   );
+        //   setMedications(processedMedData);
+        // }
+      } catch (error) {
+        console.error("Error fetching savedData:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const handleAddNewMedication = () => {
     console.log("Add New Medication");
   };
@@ -33,7 +113,7 @@ const UpdateMedicationDetails = () => {
           style={styles.imgIcon}
           source={require("../../../../assets/updateHealthIcons/Pills.png")}
         />
-        <Text style={styles.nameTxt}> {item.name}</Text>
+        <Text style={styles.nameTxt}> {item.medicine_name}</Text>
 
         <View style={styles.iconContainer}>
           <View>

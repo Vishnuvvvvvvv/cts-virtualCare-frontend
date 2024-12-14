@@ -691,7 +691,10 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
   })();
 
   const handleSave = async () => {
+    const userId = await AsyncStorage.getItem("userId");
+
     const saveData = {
+      userId,
       userDetails,
       treating_consultant: extractedData?.treating_consultant || {},
       PlanActivatedDate: PlanActivatedDate,
@@ -703,18 +706,20 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
       console.log("sending data to server 11 ... ");
       await AsyncStorage.setItem("SavedData", JSON.stringify(saveData));
 
-      console.log("sending data to server ... ");
-      const response = await axios.post(
-        "http://192.168.16.112:6000/saveData",
-        saveData
-      );
+      // console.log("sending data to server ... ");
+      // const response = await axios.post(
+      //   "http://192.168.1.2:7000/saveData",
+      //   saveData
+      // );
 
-      // const response = await axios.post(`${API.SAVE_EXTRACTED_DATA}`, saveData);
+      const response = await axios.post(`${API.SAVE_EXTRACTED_DATA}`, saveData);
 
       if (response.status === 200) {
         Alert.alert("Success", "Health Plan has been Activated successfully!");
         setStep(3);
         setIsPlanActivated(true);
+        await AsyncStorage.setItem("planActivated", "true");
+
         navigation.goBack(); // Navigate back to the previous screen
       } else {
         Alert.alert(
@@ -722,6 +727,7 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
           "Failed to activate health plan. Please try again."
         );
         setIsPlanActivated(false);
+        await AsyncStorage.setItem("planActivated", "false");
       }
     } catch (error) {
       setIsPlanActivated(false);

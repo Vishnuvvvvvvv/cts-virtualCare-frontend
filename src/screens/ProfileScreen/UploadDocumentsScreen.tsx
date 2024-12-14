@@ -65,7 +65,7 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
         ],
       });
 
-      console.log("result : ", docRes);
+      // console.log("result : ", docRes);
 
       //  const formData = new FormData();
       const assets = docRes.assets;
@@ -79,7 +79,7 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
         type: file.mimeType,
         size: file.size,
       };
-      console.log("doc", doc);
+      // console.log("doc", doc);
       //  formData.append("audioFile", audioFile as any);
       // console.log("form Data: ", formData);
 
@@ -87,9 +87,9 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(doc));
 
       setSelectedFile(doc);
-      console.log("prev. Step state is", step);
+      // console.log("prev. Step state is", step);
 
-      console.log("step State is ", step);
+      // console.log("step State is ", step);
     } catch (error) {
       console.log("Error while selecting file: ", error);
     }
@@ -139,7 +139,7 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
     }
   };
   const [fullScreen, setFullScreen] = useState<boolean>(false);
-  console.log("fullscreen ", fullScreen);
+  // console.log("fullscreen ", fullScreen);
 
   //   const handleNext = () => {
   //     navigation.goBack();
@@ -168,7 +168,8 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
     // console.log("FormData  :", formData._parts as any);
 
     try {
-      console.log("reached ----");
+      console.log("sending the file to backend");
+
       const response = await fetch(API.UPLOAD_DOC, {
         method: "POST",
         body: formData,
@@ -176,14 +177,16 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
           "Content-Type": "multipart/form-data", // Let the browser/mobile handle the Content-Type
         },
       });
-      console.log(" ----- reached ----");
+
+      // console.log("got response from backend");
       const result = await response.json();
-      console.log("res: ", result);
+      // console.log("res: ", result);
+
       if (response.ok) {
         navigation.goBack();
         const cleanResponse = result.replace(/```json\n|```/g, "");
         const parsedResponse = JSON.parse(cleanResponse);
-        console.log("File uploaded successfully:", parsedResponse);
+        console.log("got json data from backend:", parsedResponse);
 
         setPrescription(parsedResponse);
         setStep(1);

@@ -14,8 +14,29 @@ import axios from "axios";
 import { API } from "../../../apiConfig";
 const ActiveHealthPlan: React.FC = () => {
   const [data, setData] = useState<any>(null); // Initialize as null
-  const { setIsAuthenticated } = useUser();
-  const [userId, setUserId] = useState("John David");
+
+  //   const [userId, setUserId] = useState("");
+  const {
+    // userDetails,
+    setIsAuthenticated,
+    isPlanActivated,
+    setIsPlanActivated,
+  } = useUser();
+
+  const fetchUserId = async () => {
+    try {
+      const storedUserId = await AsyncStorage.getItem("userId");
+      if (storedUserId !== null) {
+        console.log("stored user id in async storage ", storedUserId);
+        return storedUserId; // Update state with the userId from AsyncStorage
+      }
+    } catch (error) {
+      console.error("Error fetching userId from AsyncStorage:", error);
+    }
+  };
+
+  // Call the function when the component mounts
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -31,13 +52,19 @@ const ActiveHealthPlan: React.FC = () => {
         // const response = await axios.get(
         //   "http://192.168.1.216:6000/getSavedData"
         // );
-        console.log(":: ", API.GET_SAVED_DATA);
+        // console.log(":: ", API.GET_SAVED_DATA);
+        const userId = await fetchUserId();
+
+        // console.log("---", userId);
         const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
 
         if (response.status === 200) {
-          console.log("Fetched data from backend:", response.data);
+          console.log(
+            `successfully Fetched data from backend for setting active plan for user:${userId}`
+          );
           setData(response.data); // Store the fetched data in state
         } else {
+          setData(null);
           console.error("Failed to fetch data, status:", response.status);
         }
 
@@ -98,12 +125,15 @@ const ActiveHealthPlan: React.FC = () => {
       console.log("All keys in AsyncStorage:", keys);
 
       const keysToDelete = keys.filter(
-        (key) => key !== "userDetails" && key !== "authToken"
+        (key) =>
+          key !== "userDetails" &&
+          key !== "authToken" &&
+          key !== "planActivated"
       );
+      await AsyncStorage.setItem("planActivated", "false");
+      setIsPlanActivated(false);
       console.log("Keys to delete:", keysToDelete);
-
       // Remove all keys except 'userDetails'
-      setIsAuthenticated(false);
       await AsyncStorage.multiRemove(keysToDelete);
       console.log('All other keys removed except "userDetails".');
     } catch (error) {

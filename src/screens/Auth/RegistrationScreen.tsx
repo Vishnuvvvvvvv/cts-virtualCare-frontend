@@ -46,6 +46,18 @@ const RegistrationScreen = (props: propsType) => {
       setErrorMessage("Please enter a valid email");
       return;
     }
+
+    // if (username && password && email) {
+    //   setIsAuthenticated(true);
+
+    //   const token = "user_auth_token";
+    //   await AsyncStorage.setItem("authToken", token);
+    //   await AsyncStorage.setItem("userId", username);
+
+    //   navigation.replace("basicDetailFillUp");
+    //   return;
+    // }
+
     try {
       const response = await fetch(API.REGISTER, {
         method: "POST",
@@ -67,7 +79,7 @@ const RegistrationScreen = (props: propsType) => {
         setIsAuthenticated(true);
         const token = data.token;
         await AsyncStorage.setItem("authToken", token);
-
+        await AsyncStorage.setItem("userId", username);
         navigation.replace("basicDetailFillUp");
       } else {
         setIsAuthenticated(false);

@@ -18,6 +18,7 @@ import InputField from "../../components/InputField";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API } from "../../apiConfig";
 import { useUser } from "../../UserContext";
+import axios from "axios";
 //login screen
 
 type propsType = NativeStackScreenProps<stackScreens, "login">;
@@ -29,6 +30,16 @@ const LoginScreen = (props: propsType) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
+  const checkSavedDataExists = async (userId: string) => {
+    const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
+
+    console.log("response is generated");
+    if (response.status === 200) {
+      return true;
+    }
+    return false;
+  };
 
   const LoginHandler = async () => {
     console.log("login clciked", username, ": ", password);
@@ -43,14 +54,28 @@ const LoginScreen = (props: propsType) => {
       /*dummy user credentials : currently assume username : admin &
        pass : password for logging in*/
     }
-    if (username === "admin" && password == "password") {
-      setIsAuthenticated(true);
 
-      const token = "user_auth_token";
-      await AsyncStorage.setItem("authToken", token);
-      navigation.replace("basicDetailFillUp");
-      return;
-    }
+    // if (username && password) {
+    //   setIsAuthenticated(true);
+
+    //   const token = "user_auth_token";
+    //   await AsyncStorage.setItem("authToken", token);
+    //   await AsyncStorage.setItem("userId", username);
+
+    //   navigation.replace("TabNavigation");
+    //   return;
+    // }
+
+    // if (username === "admin" && password == "password") {
+    //   setIsAuthenticated(true);
+
+    //   const token = "user_auth_token";
+    //   await AsyncStorage.setItem("authToken", token);
+    //   await AsyncStorage.setItem("userId", username);
+
+    //   navigation.replace("basicDetailFillUp");
+    //   return;
+    // }
 
     //original code for verifying username and password with backend
 
@@ -71,11 +96,19 @@ const LoginScreen = (props: propsType) => {
       console.log("Response:", data);
       if (response.ok) {
         // Handle successful login
+        console.log("response from login endpoint is ok!");
         setIsAuthenticated(true);
         const token = data.token;
-        await AsyncStorage.setItem("authToken", token);
 
-        navigation.navigate("basicDetailFillUp");
+        await AsyncStorage.setItem("authToken", token);
+        await AsyncStorage.setItem("userId", username);
+
+        console.log("waiting for checking whether saveddata generated or not");
+        const rslt = await checkSavedDataExists(username);
+        console.log("value of checking saved data in login screen", rslt);
+
+        if (rslt) navigation.navigate("TabNavigation");
+        else navigation.navigate("basicDetailFillUp");
       } else {
         //// Handle login error
         //  console.error("Login failed", data);

@@ -14,6 +14,8 @@ import UpdateMedicationDetails from "../screens/UpdateHealth/components/UpdateMe
 import DailyMedication from "../screens/HomeScreen/DailyMedication/DailyMedication";
 import HealthReport from "../screens/HomeScreen/HealthReport/HealthReport";
 import Medications from "../screens/HomeScreen/Medications/Medications";
+import { API } from "../apiConfig";
+import axios from "axios";
 
 export type stackScreens = {
   TabNavigation: undefined;
@@ -52,6 +54,27 @@ const RootNavigation = () => {
     return null;
   }
 
+  // const [userExisting, setUserExisting] = useState<boolean>(false);
+
+  // useEffect(() => {
+  //   const ifSavedDataPresent = async () => {
+  //     const userId = await AsyncStorage.getItem("userId");
+  //     try {
+  //       const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
+  //       if (response.status === 200 && response.data) {
+  //         console.log("Person exists");
+  //         setUserExisting(true); // Data already exists, so no need for BasicDetailFillup screen
+  //       }
+  //     } catch (error) {
+  //       console.error("Error checking SavedData:", error);
+  //     }
+  //   };
+
+  //   if (isAuthenticated) {
+  //     ifSavedDataPresent();
+  //   }
+  // }, [isAuthenticated]);
+
   return (
     <Stack.Navigator
       initialRouteName={isAuthenticated ? "TabNavigation" : "login"} // Start based on auth status
@@ -64,11 +87,13 @@ const RootNavigation = () => {
             component={BottomTabNavigation}
             options={{ headerShown: false }}
           />
+
           <Stack.Screen
             name="basicDetailFillUp"
             component={BasicDetailsFillup}
             options={{ headerShown: false }}
           />
+
           <Stack.Screen
             name="UploadDocuments"
             component={UploadDocumentsScreen}
@@ -89,7 +114,6 @@ const RootNavigation = () => {
             component={UpdateMedicationDetails}
             options={{ headerShown: true, title: "Update Medication Details" }}
           />
-
           <Stack.Screen
             name="DailyMedication"
             component={DailyMedication}

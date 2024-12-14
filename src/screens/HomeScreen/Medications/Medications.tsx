@@ -5,8 +5,19 @@ import axios from "axios";
 import { API } from "../../../apiConfig";
 const Medications = () => {
   const [medications, setMedications] = useState();
-  const [userId, setUserId] = useState("John David");
+  //   const [userId, setUserId] = useState("John David");
   // Fetch and parse data from AsyncStorage
+  const fetchUserId = async () => {
+    try {
+      const storedUserId = await AsyncStorage.getItem("userId");
+      if (storedUserId !== null) {
+        console.log("stored user id in async storage ", storedUserId);
+        return storedUserId; // Update state with the userId from AsyncStorage
+      }
+    } catch (error) {
+      console.error("Error fetching userId from AsyncStorage:", error);
+    }
+  };
 
   function processMedicineData(data: any) {
     // Mapping binary index to day strings
@@ -47,6 +58,7 @@ const Medications = () => {
     const fetchData = async () => {
       try {
         // let data = await AsyncStorage.getItem("SavedData");
+        const userId = await fetchUserId();
         console.log("calling request : ", `${API.GET_SAVED_DATA}/${userId}`);
         const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
         if (response.status === 200 && response.data) {
