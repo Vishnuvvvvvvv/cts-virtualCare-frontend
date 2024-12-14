@@ -33,20 +33,26 @@ const HomeScreen = (props: propsType) => {
   } = useUser();
 
   useEffect(() => {
+    console.log("checking plan status ....");
     const checkActivationStatus = async () => {
       try {
         const planActivated = await AsyncStorage.getItem("planActivated");
-
+        console.log("plan activated stuatus : ", planActivated);
+        if (planActivated === null) return;
         // If the key doesn't exist, default to `false`
-        setIsPlanActivated(planActivated === "true");
+        if (planActivated === "true") setIsPlanActivated(true);
+        else if (planActivated === "true") setIsPlanActivated(false);
       } catch (error) {
         console.error("Error checking plan activation status:", error);
         setIsPlanActivated(false); // Fallback to false in case of an error
       }
     };
-    checkActivationStatus;
-    console.log("Activation plan status ", isPlanActivated);
+    checkActivationStatus();
   }, []);
+
+  useEffect(() => {
+    console.log("ststst: ", isPlanActivated);
+  }, [isPlanActivated]);
 
   // Fetch and parse data from AsyncStorage
   useEffect(() => {

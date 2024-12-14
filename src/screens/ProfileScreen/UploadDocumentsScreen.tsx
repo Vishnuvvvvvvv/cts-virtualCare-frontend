@@ -19,6 +19,7 @@ import { useUser } from "../../../src/UserContext";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { stackScreens } from "../../Navigation/RootNavigation";
 import { API } from "../../apiConfig";
+import { ActivityIndicator } from "react-native-paper";
 
 // Define the type for the file
 type FileType = {
@@ -37,6 +38,7 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
   const [fileUri, setFileUri] = useState<string | null>(null);
   // const [prescription,setPrescription] = useState({})
   const { step, setStep, setPrescription } = useUser(); //use the globalContext
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const loadStoredFile = async () => {
@@ -148,6 +150,7 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
   //   };
 
   const handleNext = async () => {
+    setLoading(true);
     console.log("clicked");
     if (!selectedFile) {
       console.error("No file selected to upload");
@@ -199,91 +202,100 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
       }
     } catch (error) {
       console.error("Error uploading file:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <View style={styles.container}>
       {/* When any file is selected , hide  the choose file button and display the chosen file */}
-      {selectedFile && (
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+          <Text>Processing your document...</Text>
+        </View>
+      ) : (
         <>
-          {selectedFile.type && selectedFile.type.startsWith("image/") && (
-            //  Displaying image[png/jpeg]
+          {selectedFile && (
             <>
-              <TouchableOpacity
-                style={styles.viewPdfScreen}
-                onPress={() => {
-                  setFullScreen(true);
-                  console.log("clicked fullscreen");
-                }}
-              >
-                <DocComponent
-                  title={selectedFile.name}
-                  source={selectedFile.uri}
-                  onPress={removeFile}
-                />
-              </TouchableOpacity>
+              {selectedFile.type && selectedFile.type.startsWith("image/") && (
+                //  Displaying image[png/jpeg]
+                <>
+                  <TouchableOpacity
+                    style={styles.viewPdfScreen}
+                    onPress={() => {
+                      setFullScreen(true);
+                      console.log("clicked fullscreen");
+                    }}
+                  >
+                    <DocComponent
+                      title={selectedFile.name}
+                      source={selectedFile.uri}
+                      onPress={removeFile}
+                    />
+                  </TouchableOpacity>
 
-              <FullScreenImageModal
-                fullScreen={fullScreen}
-                setFullScreen={setFullScreen}
-                imageUri={selectedFile.uri}
-              />
-            </>
-          )}
+                  <FullScreenImageModal
+                    fullScreen={fullScreen}
+                    setFullScreen={setFullScreen}
+                    imageUri={selectedFile.uri}
+                  />
+                </>
+              )}
 
-          {/* Displaying all other formats other than image type  */}
-          {(selectedFile.type === "application/pdf" ||
-            selectedFile.type === "text/plain" ||
-            selectedFile.type ===
-              "application/vnd.openxmlformats-officedocument.wordprocessingml.document") && (
-            <>
-              {/* For android device */}
-              <TouchableOpacity
-                style={styles.viewPdfScreen}
-                onPress={viewDocument}
-              >
-                <DocComponent
-                  title={selectedFile.name}
-                  type={selectedFile.type}
-                  onPress={removeFile}
-                />
-              </TouchableOpacity>
+              {/* Displaying all other formats other than image type  */}
+              {(selectedFile.type === "application/pdf" ||
+                selectedFile.type === "text/plain" ||
+                selectedFile.type ===
+                  "application/vnd.openxmlformats-officedocument.wordprocessingml.document") && (
+                <>
+                  {/* For android device */}
+                  <TouchableOpacity
+                    style={styles.viewPdfScreen}
+                    onPress={viewDocument}
+                  >
+                    <DocComponent
+                      title={selectedFile.name}
+                      type={selectedFile.type}
+                      onPress={removeFile}
+                    />
+                  </TouchableOpacity>
 
-              {/* For ios device : implementation not finished */}
-              {pdfUri && (
-                <WebView
-                  source={{ uri: pdfUri }}
-                  style={{ width: "100%", height: 400 }}
-                />
+                  {/* For ios device : implementation not finished */}
+                  {pdfUri && (
+                    <WebView
+                      source={{ uri: pdfUri }}
+                      style={{ width: "100%", height: 400 }}
+                    />
+                  )}
+                </>
               )}
             </>
           )}
+          {/* When no file is selected , display the choose File button */}
+          {!selectedFile && (
+            <View style={styles.center}>
+              <TouchableOpacity style={styles.PickBtn} onPress={pickSomething}>
+                <Image
+                  style={styles.uploadBtn}
+                  source={require("../../../assets/ProfileIcons/Upload.png")}
+                ></Image>
+                <Text>Choose File</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          {/* continue to next step */}
+          {selectedFile && (
+            <TouchableOpacity style={styles.Btn} onPress={handleNext}>
+              <Text style={styles.BtnTxt}>Continue</Text>
+              <Image
+                style={styles.btnIcon}
+                source={require("../../../assets/RightChevron.png")}
+              ></Image>
+            </TouchableOpacity>
+          )}
         </>
-      )}
-
-      {/* When no file is selected , display the choose File button */}
-      {!selectedFile && (
-        <View style={styles.center}>
-          <TouchableOpacity style={styles.PickBtn} onPress={pickSomething}>
-            <Image
-              style={styles.uploadBtn}
-              source={require("../../../assets/ProfileIcons/Upload.png")}
-            ></Image>
-            <Text>Choose File</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {/* continue to next step */}
-      {selectedFile && (
-        <TouchableOpacity style={styles.Btn} onPress={handleNext}>
-          <Text style={styles.BtnTxt}>Continue</Text>
-          <Image
-            style={styles.btnIcon}
-            source={require("../../../assets/RightChevron.png")}
-          ></Image>
-        </TouchableOpacity>
       )}
     </View>
   );
@@ -295,6 +307,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     // alignItems: "center",
     // justifyContent: "center",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   center: {
@@ -335,21 +352,39 @@ const styles = StyleSheet.create({
   },
 
   Btn: {
-    // borderWidth: 1,
+    // // borderWidth: 1,
+    // flexDirection: "row",
+    // width: "40%",
+    // // alignSelf: "center",
+    // position: "absolute",
+    // bottom: 10, // Align it to the bottom
+    // left: "30%", // Align it to the left
+    // right: "30%", // Align it to the right
+    // // padding: 20, // Optional padding
+    // borderRadius: 12,
+    // height: 50,
+    // backgroundColor: "#FFFFFF",
+    // borderColor: "#A0A0A0",
+    // justifyContent: "space-evenly",
+    // alignItems: "center",
     flexDirection: "row",
-    width: "40%",
-    // alignSelf: "center",
+    width: "60%",
     position: "absolute",
-    bottom: 10, // Align it to the bottom
-    left: "30%", // Align it to the left
-    right: "30%", // Align it to the right
-    // padding: 20, // Optional padding
+    bottom: 20,
+    left: "20%",
+    right: "20%",
     borderRadius: 12,
     height: 50,
     backgroundColor: "#FFFFFF",
     borderColor: "#A0A0A0",
+    // borderWidth: 1,
     justifyContent: "space-evenly",
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 5, // For Android shadow
   },
 
   BtnTxt: {

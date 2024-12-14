@@ -38,7 +38,12 @@ const Stack = createNativeStackNavigator<stackScreens>();
 
 const RootNavigation = () => {
   // const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const { isAuthenticated, setIsAuthenticated } = useUser();
+  const {
+    isAuthenticated,
+    setIsAuthenticated,
+    isPlanActivated,
+    setIsPlanActivated,
+  } = useUser();
 
   useEffect(() => {
     const checkAuthStatus = async () => {

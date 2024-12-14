@@ -263,9 +263,16 @@ const DailyMedication = () => {
 
         if (response.status === 200 && response.data) {
           // Check if the response contains a message
-          if (response.data.message) {
+          console.log("there is medication data for todays date at backend ");
+          if (
+            response.data.message === "User not found or no data available."
+          ) {
+            //if the data from server is a "message" --> "no data found"
             // Handle case where user data is not found
-            console.log(response.data.message);
+            console.log(
+              "message from server {daily medication} ",
+              response.data.message
+            );
             // Proceed with processing dayWiseMedicinePrescription since the user doesn't have any data
             processDayWiseMedicinePrescription();
           } else {
@@ -495,7 +502,7 @@ const DailyMedication = () => {
     return (
       <>
         {data.map((medicine, index) => (
-          <View style={styles.MedMainCont}>
+          <View style={styles.MedMainCont} key={index}>
             <View
               style={[
                 styles.roundContainer,

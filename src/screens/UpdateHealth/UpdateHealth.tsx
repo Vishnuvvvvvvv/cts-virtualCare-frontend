@@ -149,6 +149,7 @@ const UpdateHealth = (props: propsType) => {
 
     // Clear the input field after saving
     setSymptoms(""); // Clear input
+    setModalVisible(false);
   };
 
   // Retrieve all data (for display or debugging purposes)

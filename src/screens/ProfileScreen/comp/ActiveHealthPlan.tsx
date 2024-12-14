@@ -94,27 +94,61 @@ const ActiveHealthPlan: React.FC = () => {
   const { name: userName = "N/A", age = "N/A", gender = "N/A" } = userDetails;
 
   const parseDate = (dateString: any) => {
-    // moment.js can handle multiple formats
-    return moment(dateString, ["YYYY-MM-DD", "D MMM YYYY"]).toDate();
+    return moment(dateString, [
+      "YYYY-MM-DD",
+      "D MMM YYYY",
+      "DD-MM-YYYY",
+      "DD/MM/YYYY",
+      "D MMMM YYYY",
+    ]).toDate();
   };
+
   // Calculate progress based on dates
+  //   const calculateProgress = (startDate: string, endDate: string): number => {
+  //     console.log("startDate in doc ", startDate);
+  //     console.log("endDate in doc ", endDate);
+  //     if (!startDate || !endDate) return 0; // Handle invalid or missing dates
+  //     // const start = new Date(startDate.split("-").reverse().join("-"));
+
+  //     const start = parseDate(startDate);
+  //     const end = parseDate(endDate);
+
+  //     console.log("start ", start);
+  //     console.log("end ", end);
+  //     const today = new Date();
+  //     const totalDays = Math.ceil(
+  //       (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+  //     );
+  //     const daysElapsed = Math.ceil(
+  //       (today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+  //     );
+  //     return totalDays > 0 ? Math.min(daysElapsed / totalDays, 1) : 0; // Avoid division by zero
+  //   };
   const calculateProgress = (startDate: string, endDate: string): number => {
+    console.log("startDate in doc ", startDate);
+    console.log("endDate in doc ", endDate);
     if (!startDate || !endDate) return 0; // Handle invalid or missing dates
-    // const start = new Date(startDate.split("-").reverse().join("-"));
+    // startDate = "13-12-2024";
+    const start = truncateTime(parseDate(startDate));
+    const end = truncateTime(parseDate(endDate));
+    const today = truncateTime(new Date());
 
-    const start = parseDate(startDate);
-    const end = parseDate(endDate);
+    console.log("start (local):", start.toLocaleString());
+    console.log("end (local):", end.toLocaleString());
+    console.log("today (local):", today.toLocaleString());
 
-    console.log("start ", start);
-    console.log("end ", end);
-    const today = new Date();
     const totalDays = Math.ceil(
       (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
     );
     const daysElapsed = Math.ceil(
       (today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
     );
+    console.log("day", daysElapsed);
     return totalDays > 0 ? Math.min(daysElapsed / totalDays, 1) : 0; // Avoid division by zero
+  };
+
+  const truncateTime = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
   };
 
   const progress = calculateProgress(PlanActivatedDate, follow_up_date);
@@ -123,23 +157,43 @@ const ActiveHealthPlan: React.FC = () => {
       // Extract all keys from AsyncStorage
       const keys = await AsyncStorage.getAllKeys();
       console.log("All keys in AsyncStorage:", keys);
+      try {
+        const userId = await AsyncStorage.getItem("userId");
+        if (userId) {
+          const response = await axios.delete(`${API.DELETE_DATA}/${userId}`);
+          console.log("Data deleted successfully:", response.data);
+        } else {
+          console.log("User ID not found in AsyncStorage.");
+        }
+      } catch (error) {
+        console.error("Error deleting data:", error);
+      }
 
       const keysToDelete = keys.filter(
         (key) =>
           key !== "userDetails" &&
           key !== "authToken" &&
-          key !== "planActivated"
+          key !== "planActivated" &&
+          key != "userId"
       );
+
       await AsyncStorage.setItem("planActivated", "false");
       setIsPlanActivated(false);
       console.log("Keys to delete:", keysToDelete);
       // Remove all keys except 'userDetails'
       await AsyncStorage.multiRemove(keysToDelete);
-      console.log('All other keys removed except "userDetails".');
     } catch (error) {
       console.error("Error extracting keys from AsyncStorage:", error);
     }
   };
+
+  useEffect(() => {
+    const get = async () => {
+      const keys = await AsyncStorage.getAllKeys();
+      console.log("All keys in AsyncStorage:", keys);
+    };
+    get();
+  }, []);
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <Text style={styles.header}>Active Health Plan</Text>

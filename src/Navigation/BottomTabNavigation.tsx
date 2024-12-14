@@ -5,6 +5,8 @@ import UpdateHealth from "../screens/UpdateHealth/UpdateHealth";
 import { ActivityIndicator, Image, View } from "react-native";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { API } from "../apiConfig";
 
 export type stackScreens = {
   HomeScreen: undefined;
@@ -32,29 +34,71 @@ export default function BottomTabNavigation() {
   //   }
   // };
 
-  const ActivePlanStatus = async () => {
-    try {
-      const planActivated = await AsyncStorage.getItem("planActivated");
-      if (planActivated === null) {
-        // Key is missing, set default value
-        await AsyncStorage.setItem("planActivated", "false");
-        return false;
-      }
-      return planActivated === "true";
-    } catch (error) {
-      console.error("Error fetching planActivated from AsyncStorage:", error);
-      return false; // Default to false in case of an error
-    }
-  };
+  // const ActivePlanStatus = async () => {
+  //   try {
+  //     const planActivated = await AsyncStorage.getItem("planActivated");
+  //     if (planActivated === null) {
+  //       console.log("setting to plan activated as false as their is no key in async storage")
+  //       // Key is missing, set default value
+  //       await AsyncStorage.setItem("planActivated", "false");
+  //       return false;
+  //     }
+  //     return planActivated === "true";
+  //   } catch (error) {
+  //     console.error("Error fetching planActivated from AsyncStorage:", error);
+  //     return false; // Default to false in case of an error
+  //   }
+  // };
 
   useEffect(() => {
-    const check = async () => {
-      const res = await ActivePlanStatus();
-      setIsHomeScreen(res);
+    // Define the async function inside the useEffect
+    const checkPlanActivation = async () => {
+      try {
+        // let value = (await AsyncStorage.getItem("SavedData")) as any;
+
+        //get the unique userId[username] entered during login/signup...
+
+        const userId = await AsyncStorage.getItem("userId");
+        if (userId === null) return;
+
+        const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
+        if (response.status === 200) {
+          console.log(`the plan for ${userId} is activated already`);
+          setIsHomeScreen(true);
+          await AsyncStorage.setItem("planActivated", "true");
+          // console.log("resplo ", response.data.userDetails.name);
+          // const firstName = response?.userDetails?.name?.split(" ")[0]; // Extract the first name
+          // setName(response.data.userDetails.name.split(" ")[0]);
+        } else {
+          console.log(`the plan for ${userId} is not activated `);
+          await AsyncStorage.setItem("planActivated", "false");
+          setIsHomeScreen(false);
+        }
+
+        // if (value) {
+        //   value = JSON.parse(value) as any;
+        //   console.log("v ", value?.userDetails);
+        //   console.log("there is a value");
+        //   setIsPlanActivated(true);
+        // } else {
+        //   setIsPlanActivated(false);
+        // }
+      } catch (error) {
+        console.error("Error checking SavedData in AsyncStorage:", error);
+      }
     };
-    check();
-    console.log("inside botttomTab navogation status ,", isHomeScreen);
+
+    checkPlanActivation(); // Call the async function
   }, []);
+
+  // useEffect(() => {
+  //   const check = async () => {
+  //     const res = await ActivePlanStatus();
+  //     setIsHomeScreen(res);
+  //   };
+  //   check();
+  //   console.log("inside botttomTab navogation status ,", isHomeScreen);
+  // }, []);
 
   if (isHomeScreen === null) {
     // Show a loading indicator while checking the plan status

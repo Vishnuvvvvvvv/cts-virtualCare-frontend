@@ -640,13 +640,14 @@ import DaysCheckbox from "./comp/DaysCheckbox";
 import TimeCheckbox from "./comp/TimeCheckbox"; // Import TimeCheckbox
 import axios from "axios";
 import { API } from "../../../apiConfig";
+import { ActivityIndicator } from "react-native-paper";
 
 type propsType = NativeStackScreenProps<stackScreens, "ReviewAndSubmit">;
 
 const ReviewAndSubmit = ({ navigation }: propsType) => {
   const [extractedData, setExtractedData] = useState<any>(null);
   const [userDetails, setUserDetails] = useState<any>(null);
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState<boolean>(true);
   const { step, setStep, setIsPlanActivated } = useUser();
 
   useEffect(() => {
@@ -744,6 +745,7 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
   }
 
   const { discharge_details, treating_consultant } = extractedData || {};
+  console.log("user details ", userDetails.age);
 
   return (
     <View style={styles.container}>
@@ -763,7 +765,7 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
             <TextInput
               editable={isEditing}
               style={styles.input}
-              value={userDetails.age}
+              value={String(userDetails.age)}
             />
             <Text style={styles.label}>Gender</Text>
             <TextInput
@@ -778,7 +780,7 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
             <TextInput
               editable={isEditing}
               style={styles.input}
-              value={userDetails.dateOfBirth}
+              value={userDetails.dateOfBirth.split("T")[0]}
               onChangeText={(text) =>
                 setUserDetails({ ...userDetails, dateOfBirth: text })
               }
@@ -805,7 +807,10 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
           onChangeText={(text) =>
             setExtractedData({
               ...extractedData,
-              treating_consultant: { ...treating_consultant, specialty: text },
+              treating_consultant: {
+                ...treating_consultant,
+                specialty: text,
+              },
             })
           }
         />
@@ -830,7 +835,10 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
           onChangeText={(text) =>
             setExtractedData({
               ...extractedData,
-              discharge_details: { ...discharge_details, follow_up_date: text },
+              discharge_details: {
+                ...discharge_details,
+                follow_up_date: text,
+              },
             })
           }
         />
@@ -907,6 +915,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   sectionTitle: {
     fontSize: 18,

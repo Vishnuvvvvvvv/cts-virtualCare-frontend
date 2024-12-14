@@ -95,7 +95,7 @@ const Medications = () => {
   }, []);
 
   const renderMedicationItem = ({ item }: any) => (
-    <View style={styles.medicationCard} key={item.medicine_name}>
+    <View style={styles.medicationCard}>
       <View style={styles.medicationNameHeading}>
         <Image
           style={styles.imgIcon}
@@ -121,7 +121,7 @@ const Medications = () => {
       {medications && (
         <FlatList
           data={medications}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item, index) => item.id || index}
           renderItem={renderMedicationItem}
         />
       )}

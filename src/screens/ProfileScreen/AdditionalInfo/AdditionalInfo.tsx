@@ -1,12 +1,5 @@
-import {
-  Image,
-  StyleSheet,
-  Text,
-  View,
-  Button,
-  TouchableOpacity,
-} from "react-native";
 import React from "react";
+import { Image, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { stackScreens } from "../../../Navigation/RootNavigation";
 import { useUser } from "../../../UserContext";
@@ -20,16 +13,28 @@ const AdditionalInfo = ({ navigation }: propsType) => {
     setStep(2);
     navigation.goBack();
   };
+
   return (
     <View style={styles.container}>
-      <Text>Add Details about Diet , Exercise here</Text>
-      <TouchableOpacity style={styles.Btn} onPress={handleNext}>
-        <Text style={styles.BtnTxt}>Continue</Text>
+      <View style={styles.infoBox}>
         <Image
-          style={styles.btnIcon}
-          source={require("../../../../assets/RightChevron.png")}
-        ></Image>
-      </TouchableOpacity>
+          style={styles.infoIcon}
+          source={require("../../../../assets/ProfileIcons/Check.png")}
+        />
+        <Text style={styles.infoText}>
+          No further information is needed. You're good to go to the next step!
+        </Text>
+      </View>
+
+      {step >= 1 && (
+        <TouchableOpacity style={styles.Btn} onPress={handleNext}>
+          <Text style={styles.BtnTxt}>Continue</Text>
+          <Image
+            style={styles.btnIcon}
+            source={require("../../../../assets/RightChevron.png")}
+          />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -42,34 +47,51 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  infoBox: {
+    backgroundColor: "#F0F8FF",
+    padding: 20,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 30,
+    width: "100%",
+  },
+  infoIcon: {
+    height: 50,
+    width: 50,
+    marginBottom: 10,
+  },
+  infoText: {
+    textAlign: "center",
+    fontSize: 18,
+    color: "#4A4A4A",
+    fontWeight: "500",
   },
   Btn: {
-    // borderWidth: 1,
     flexDirection: "row",
-    width: "40%",
-    // alignSelf: "center",
+    width: "60%",
     position: "absolute",
-    bottom: 10, // Align it to the bottom
-    left: "30%", // Align it to the left
-    right: "30%", // Align it to the right
-    // padding: 20, // Optional padding
+    bottom: 20,
     borderRadius: 12,
     height: 50,
     backgroundColor: "#FFFFFF",
     borderColor: "#A0A0A0",
+    // borderWidth: 1,
     justifyContent: "space-evenly",
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 5, // For Android shadow
   },
-
   BtnTxt: {
     textAlign: "center",
     color: "#A0A0A0",
-    // borderWidth: 1,
-    // justifyContent: "center",
-    // alignItems: "center",
-    padding: 8,
-    height: "100%",
-    fontSize: 23,
+    fontSize: 18,
+    fontWeight: "bold",
   },
   btnIcon: {
     height: 25,

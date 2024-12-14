@@ -70,7 +70,7 @@ const PatientReport = () => {
       const response = await axios.get(`${API.GET_SYMPTOMS}/${userId}`);
       return response?.data?.symptoms || []; // Return empty array if no symptoms
     } catch (error) {
-      console.error("Error fetching symptoms:", error);
+      //   console.error("Error fetching symptoms:", error);
       return []; // Return empty array if request fails
     }
   };
@@ -83,7 +83,7 @@ const PatientReport = () => {
       );
       return response?.data?.userData || {}; // Return empty object if no reminders
     } catch (error) {
-      console.error("Error fetching daily reminders:", error);
+      //   console.error("Error fetching daily reminders:", error);
       return {}; // Return empty object if request fails
     }
   };
@@ -154,6 +154,7 @@ const PatientReport = () => {
       //       summaryObject,
       //     }
       //   );
+      console.log("sending summary object to summarise");
       const response = await axios.post(`${API.SUMMARIZE}`, {
         summaryObject,
       });
