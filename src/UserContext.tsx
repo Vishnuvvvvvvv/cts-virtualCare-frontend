@@ -20,6 +20,10 @@ interface UserContextType {
   setUserDetails: React.Dispatch<React.SetStateAction<UserDetails>>; // Setter for userDetails
   isPlanActivated: boolean | null;
   setIsPlanActivated: React.Dispatch<React.SetStateAction<boolean | null>>;
+  isFollowUpDateReached: boolean | null;
+  setIsFollowUpDateReached: React.Dispatch<
+    React.SetStateAction<boolean | null>
+  >;
 }
 
 // Create the context with an initial value
@@ -33,7 +37,9 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   const [prescription, setPrescription] = useState({});
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isPlanActivated, setIsPlanActivated] = useState<boolean | null>(false);
-
+  const [isFollowUpDateReached, setIsFollowUpDateReached] = useState<
+    boolean | null
+  >(false);
   // Initialize userDetails state with default values, including gender
   const [userDetails, setUserDetails] = useState<UserDetails>({
     name: "", // Default empty string for name
@@ -55,6 +61,8 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         setUserDetails, // Provide setter for userDetails
         isPlanActivated,
         setIsPlanActivated,
+        isFollowUpDateReached,
+        setIsFollowUpDateReached,
       }}
     >
       {children}

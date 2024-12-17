@@ -11,10 +11,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useUser } from "../../../UserContext";
 import moment from "moment";
 import axios from "axios";
-import { API } from "../../../apiConfig";
+import { API, getToken, getTokenAndCheckExpiry } from "../../../apiConfig";
+import { useNavigation } from "@react-navigation/native";
 const ActiveHealthPlan: React.FC = () => {
   const [data, setData] = useState<any>(null); // Initialize as null
-
+  const { navigation } = useNavigation<any>(); //new line
   //   const [userId, setUserId] = useState("");
   const {
     // userDetails,
@@ -53,6 +54,16 @@ const ActiveHealthPlan: React.FC = () => {
         //   "http://192.168.1.216:6000/getSavedData"
         // );
         // console.log(":: ", API.GET_SAVED_DATA);
+        const token = await getToken();
+
+        // Set the Authorization header globally
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+        if (!token) {
+          console.log("no token for Active health plan");
+          return;
+        }
+        getTokenAndCheckExpiry(token, navigation);
         const userId = await fetchUserId();
 
         // console.log("---", userId);
@@ -63,6 +74,10 @@ const ActiveHealthPlan: React.FC = () => {
             `successfully Fetched data from backend for setting active plan for user:${userId}`
           );
           setData(response.data); // Store the fetched data in state
+          //   await AsyncStorage.setItem(
+          //     "followUp",
+          //     response?.data?.discharge_details?.follow_up_date
+          //   );
         } else {
           setData(null);
           console.error("Failed to fetch data, status:", response.status);
@@ -132,6 +147,7 @@ const ActiveHealthPlan: React.FC = () => {
     const start = truncateTime(parseDate(startDate));
     const end = truncateTime(parseDate(endDate));
     const today = truncateTime(new Date());
+    if (start >= end) return 1;
 
     console.log("start (local):", start.toLocaleString());
     console.log("end (local):", end.toLocaleString());

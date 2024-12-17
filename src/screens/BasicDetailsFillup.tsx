@@ -7,7 +7,7 @@ import { stackScreens } from "../Navigation/RootNavigation";
 import { useUser } from "../UserContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { API } from "../apiConfig";
+import { API, getToken, getTokenAndCheckExpiry } from "../apiConfig";
 
 type propsType = NativeStackScreenProps<stackScreens, "basicDetailFillUp">;
 interface UserDetails {
@@ -71,14 +71,28 @@ const BasicDetailsFillup = (props: propsType) => {
 
   const storeUserData = async () => {
     try {
+      const token = await getToken();
+      if (!token) {
+        console.log("basic details : no token -");
+        return false;
+      }
+      console.log("preparing to store the user details, (from BDF screen)");
+      getTokenAndCheckExpiry(token, navigation);
+      console.log("finished checking token (from BDF screen)");
+      // Set the Authorization header globally
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       const response = await axios.post(
         `${API.SAVE_USER_DETAILS}`,
         userDetails
       );
       if (response.status === 201) {
         console.log("Success", "User details saved successfully");
+        await AsyncStorage.setItem("userDetails", JSON.stringify(userDetails));
+        return true;
       } else {
-        Alert.alert("Error", "An unexpected response occurred");
+        Alert.alert("Error", "An unexpected response occurred (BDF screen)");
+        return false;
       }
 
       // await AsyncStorage.setItem("userDetails", JSON.stringify(userDetails));
@@ -88,19 +102,25 @@ const BasicDetailsFillup = (props: propsType) => {
       //   storedUserDetails ? JSON.parse(storedUserDetails) : null
       // );
     } catch (error) {
-      console.error("Error storing user data:", error);
+      console.error("Error storing user data: (BDF screen)", error);
+      return false;
     }
   };
 
-  const ContinueUpHandler = () => {
+  const ContinueUpHandler = async () => {
+    console.log("continue up handler clicked from BDF screen");
     const { name, dateOfBirth, age, gender } = userDetails;
     if (!name || !dateOfBirth || !age || !gender) {
       setErrorMessage("Please fill out all fields");
       return;
     }
-    storeUserData();
+    const rslt = await storeUserData();
     // Navigate to TabNavigation
-    navigation.replace("TabNavigation");
+    console.log(
+      "recieved result regarding saved details or not (BDF screen): ",
+      rslt
+    );
+    if (rslt) navigation.replace("TabNavigation");
   };
 
   return (

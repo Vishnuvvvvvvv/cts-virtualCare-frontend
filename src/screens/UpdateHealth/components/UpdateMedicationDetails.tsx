@@ -7,11 +7,14 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { API } from "../../../apiConfig";
+import { API, getToken, getTokenAndCheckExpiry } from "../../../apiConfig";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 
 const UpdateMedicationDetails = () => {
+  const { navigation } = useNavigation<any>(); //new line
+
   const fetchUserId = async () => {
     try {
       const storedUserId = await AsyncStorage.getItem("userId");
@@ -66,6 +69,16 @@ const UpdateMedicationDetails = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const token = await getToken();
+        if (!token) {
+          console.log("update medicine : no token -");
+          return;
+        }
+
+        getTokenAndCheckExpiry(token, navigation);
+        // Set the Authorization header globally
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
         const userId = await fetchUserId();
         console.log("calling request : ", `${API.GET_SAVED_DATA}/${userId}`);
         const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);

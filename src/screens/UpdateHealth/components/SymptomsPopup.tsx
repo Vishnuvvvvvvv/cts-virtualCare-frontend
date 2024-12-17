@@ -12,7 +12,8 @@ import {
 } from "react-native";
 import { Audio } from "expo-av";
 import axios from "axios";
-import { API } from "../../../apiConfig";
+import { API, getToken, getTokenAndCheckExpiry } from "../../../apiConfig";
+import { useNavigation } from "@react-navigation/native";
 
 // This is the symptom popup screen, which gets displayed when the update symptoms is clicked
 type PropsType = {
@@ -36,7 +37,7 @@ const SymptomsPopup = ({
     undefined
   );
   const [isLoading, setIsLoading] = useState(false);
-
+  const { navigation } = useNavigation<any>(); //new line
   async function startRecording() {
     try {
       const perm = await Audio.requestPermissionsAsync();
@@ -99,6 +100,20 @@ const SymptomsPopup = ({
       //   }
       // );
 
+      const token = await getToken();
+      if (!token) {
+        console.log("symptoms no token -");
+        return;
+      }
+      getTokenAndCheckExpiry(token, navigation);
+      // Set the Authorization header globally
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      console.log(
+        "sending audio to transcribe ",
+        API.TRANSCRIBE,
+        " bearer ",
+        token
+      );
       const response = await axios.post(`${API.TRANSCRIBE}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });

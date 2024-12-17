@@ -639,7 +639,7 @@ import { useUser } from "../../../UserContext";
 import DaysCheckbox from "./comp/DaysCheckbox";
 import TimeCheckbox from "./comp/TimeCheckbox"; // Import TimeCheckbox
 import axios from "axios";
-import { API } from "../../../apiConfig";
+import { API, getToken } from "../../../apiConfig";
 import { ActivityIndicator } from "react-native-paper";
 
 type propsType = NativeStackScreenProps<stackScreens, "ReviewAndSubmit">;
@@ -704,6 +704,15 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
     // console.log("saved data ", saveData);
     console.log("sending data to server ... ");
     try {
+      const token = await getToken();
+
+      // Set the Authorization header globally
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      if (!token) {
+        console.log("no token for review submit");
+        return;
+      }
       console.log("sending data to server 11 ... ");
       await AsyncStorage.setItem("SavedData", JSON.stringify(saveData));
 

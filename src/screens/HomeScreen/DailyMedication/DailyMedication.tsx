@@ -1,14 +1,17 @@
 import { StyleSheet, Text, View, Image } from "react-native";
 import React, { useEffect, useState } from "react";
-// import {  } from "react-native-paper/lib/typescript/components/Avatar/Avatar";
 import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useUser } from "../../../UserContext";
 import axios from "axios";
-import { API } from "../../../apiConfig";
-const DailyMedication = () => {
-  //   const [userId, setUserId] = useState<any>(null);
+import { API, getTokenAndCheckExpiry } from "../../../apiConfig";
+import { getToken } from "../../../apiConfig";
+import moment from "moment";
+import { useNavigation } from "@react-navigation/native";
+import { ActivityIndicator } from "react-native-paper";
 
+const DailyMedication = () => {
+  const { navigation } = useNavigation<any>(); //new line
   const daysOfWeek = [
     "Sunday",
     "Monday",
@@ -23,7 +26,6 @@ const DailyMedication = () => {
     useState<any>(null);
   const { isPlanActivated } = useUser();
 
-  //   if (!isPlanActivated) return;
   const fetchUserId = async () => {
     try {
       const storedUserId = await AsyncStorage.getItem("userId");
@@ -35,40 +37,22 @@ const DailyMedication = () => {
       console.error("Error fetching userId from AsyncStorage:", error);
     }
   };
-
-  //   useEffect(() => {
-  //     const fetchUID = async () => {
-  //       const userId = await fetchUserId();
-  //       setUserId(userId);
-  //     };
-  //     fetchUID();
-  //   }, []);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // if (!userId) return;
     const fetchPrescriptionData = async () => {
       try {
-        // Retrieve the saved data from AsyncStorage
-        /**  let storedData = (await AsyncStorage.getItem("SavedData")) as any;
-        
-       storedData = JSON.parse(storedData);
-        console.log("::", storedData?.discharge_details?.prescription);
-        if (storedData) {
-          // Parse the data if it's in JSON format
-          setdayWiseMedicinePresciption(
-            storedData?.discharge_details?.prescription
-          );
-        } else {
-          console.warn("No data found in AsyncStorage for key: savedData");
-          setdayWiseMedicinePresciption(null);
+        const token = await getToken();
+        if (!token) {
+          console.log("no token -Daily Med");
+          return;
         }
-
-        **/
-
-        // const response = await axios.get(
-        //   "http://192.168.1.6:6000/getSavedData"
-        // );
+        // Set the Authorization header globally
+        getTokenAndCheckExpiry(token, navigation);
         const userId = await fetchUserId();
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
         // console.log("get saved data: ", API.GET_SAVED_DATA);
         const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
         if (response.status === 200 && response.data) {
@@ -85,10 +69,9 @@ const DailyMedication = () => {
         }
       } catch (error) {
         console.error("Error fetching prescription data: ", error);
+      } finally {
+        setIsLoading(false);
       }
-      //    finally {
-      //     setLoading(false);
-      //   }
     };
 
     fetchPrescriptionData();
@@ -102,155 +85,13 @@ const DailyMedication = () => {
     evening: [] as any,
     night: [] as any,
   });
-  /**
-  useEffect(() => {
-    const today = new Date();
 
-    // Get the day of the week (0-6) //get today
-    const dayIndex = today.getDay();
-
-    const dayName = daysOfWeek[dayIndex];
-
-    console.log("Today is:", dayName);
-    const medicines = {
-      morning: [] as any,
-      noon: [] as any,
-      evening: [] as any,
-      night: [] as any,
-    };
-
-    prescription.forEach((med) => {
-      //if that medicine is prescribed for today
-      const medicine_info = {
-        name: med.medicine_name,
-        dosage: med.dosage,
-        status: "waiting",
-      };
-
-      // Check each time slot for this medicine and add it accordingly
-      if (med.time[0] === "1") medicines.morning.push(medicine_info);
-      if (med.time[1] === "1") medicines.noon.push(medicine_info);
-      if (med.time[2] === "1") medicines.evening.push(medicine_info);
-      if (med.time[3] === "1") medicines.night.push(medicine_info);
-    });
-
-    setMedicinesForToday(medicines);
-    console.log(
-      "Medicines for today:",
-      JSON.stringify(medicinesForToday, null, 2)
-    );
-   }, []);
-**/
-  /**
-  useEffect(() => {
-    const processPrescriptionForToday = async () => {
-      const today = new Date();
-      // const dayIndex = today.getDay(); // Get the day of the week (0-6)
-      // const todayKey = `todaysReminders-${today.toISOString().split("T")[0]}`; // YYYY-MM-DD key
-      const date = today.toISOString().split("T")[0]; // Date in YYYY-MM-DD format
-      //const userId = "345"; // Replace this with the actual user ID
-
-      try {
-        // Check if today's data already exists in AsyncStorage
-        // const storedData = await AsyncStorage.getItem(todayKey);
-        const response = await axios.get(
-          `http://192.168.1.6:6000/api/dailyMedicineStatus/${userId}/${date}`
-        );
-        /** 
-        if (storedData) {
-          // Load data if already processed for today
-          setMedicinesForToday(JSON.parse(storedData));
-
-
-
-        } 
-        
-        */
-
-  /*** working backend initial code: */
-  //         if (response.status === 200) {
-  //           const schedule = response.data.medicineSchedule;
-
-  //           // Extract the medicine schedule
-  //           const medicines = {
-  //             morning: schedule.morning || [],
-  //             noon: schedule.noon || [],
-  //             evening: schedule.evening || [],
-  //             night: schedule.night || [],
-  //           };
-
-  //           // Store it in the state
-  //           setMedicinesForToday(medicines);
-  //           console.log("Medicines for today:", medicines);
-  //         } else if (dayWiseMedicinePresciption) {
-  //           /*** */
-  //           // If no schedule from backend, process `dayWiseMedicinePresciption`
-  //           // Process `dayWiseMedicinePrescription` for today's medicines
-  //           const medicines = {
-  //             morning: [] as any,
-  //             noon: [] as any,
-  //             evening: [] as any,
-  //             night: [] as any,
-  //           };
-
-  //           dayWiseMedicinePresciption?.forEach((med: any) => {
-  //             const medicine_info = {
-  //               name: med.medicine_name,
-  //               dosage: med.dosage,
-  //               status: "waiting",
-  //             };
-
-  //             // Check time slots and add to medicines
-  //             if (med.time[0] === "1") medicines.morning.push(medicine_info);
-  //             if (med.time[1] === "1") medicines.noon.push(medicine_info);
-  //             if (med.time[2] === "1") medicines.evening.push(medicine_info);
-  //             if (med.time[3] === "1") medicines.night.push(medicine_info);
-  //           });
-
-  //           // Save processed data to AsyncStorage
-  //           // await AsyncStorage.setItem(todayKey, JSON.stringify(medicines));
-
-  //           // Update state
-  //           setMedicinesForToday(medicines);
-
-  //           //new code:
-  //           // Now, save this processed data to the backend (POST request)
-  //           const response = await axios.post(
-  //             "http://192.168.1.8:6000/api/storeDailyMedicine",
-  //             {
-  //               userId,
-  //               date,
-  //               morning: medicines.morning,
-  //               noon: medicines.noon,
-  //               evening: medicines.evening,
-  //               night: medicines.night,
-  //             }
-  //           );
-
-  //           if (response.status === 201) {
-  //             console.log("Medicine schedule saved successfully!");
-  //           }
-
-  //           //console.log('Medicines for today saved to the backend.');
-  //         }
-  //       } catch (error) {
-  //         console.error("Error processing prescription for today: ", error);
-  //       }
-  //     };
-
-  //     processPrescriptionForToday();
-  //   }, [dayWiseMedicinePresciption]);
   useEffect(() => {
     const processPrescriptionForToday = async () => {
       const today = new Date();
       const date = today.toISOString().split("T")[0]; // Date in YYYY-MM-DD format
 
       try {
-        // const response = await axios.get(
-        //   `http://192.168.1.216:6000/api/dailyMedicineStatus/${userId}/${date}`
-        // );
-
-        // http://192.168.1.216:6000/api/dailyMedicineStatus/123/2024-12-12
         const userId = await fetchUserId();
 
         console.log(
@@ -307,6 +148,12 @@ const DailyMedication = () => {
     };
 
     const processDayWiseMedicinePrescription = async () => {
+      const delay = (ms: number) =>
+        new Promise((resolve) => setTimeout(resolve, ms)); // Delay function
+
+      // Delay execution by 2 seconds (2000 milliseconds)
+      await delay(2000);
+
       const today = new Date();
       const date = today.toISOString().split("T")[0]; // Date in YYYY-MM-DD format
 
@@ -376,58 +223,6 @@ const DailyMedication = () => {
     return {}; // Default (empty) style if no match
   };
   type TimeSlot = "morning" | "noon" | "evening" | "night";
-  /** initial working code: backend integration**/
-  //   const updateMedicineStatus = (
-  //     timeSlot: TimeSlot,
-  //     name: any,
-  //     newStatus: any
-  //   ) => {
-  //     setMedicinesForToday((prevState) => {
-  //       const updatedState = { ...prevState };
-
-  //       updatedState[timeSlot] = updatedState[timeSlot].map((med: any) =>
-  //         med.name === name ? { ...med, status: newStatus } : med
-  //       );
-  //       // Save updated state to AsyncStorage
-  //       /*const todayKey = `todaysReminders-${
-  //         new Date().toISOString().split("T")[0]
-  //       }`;
-  //       AsyncStorage.setItem(todayKey, JSON.stringify(updatedState)).catch(
-  //         (err) =>
-  //           console.error("Error saving updated status to AsyncStorage: ", err)
-  //       );
-  //       */
-  //       const today = new Date();
-  //       // const dayIndex = today.getDay(); // Get the day of the week (0-6)
-  //       // const todayKey = `todaysReminders-${today.toISOString().split("T")[0]}`; // YYYY-MM-DD key
-  //       const date = today.toISOString().split("T")[0];
-
-  //       axios
-  //         .post("http://192.168.1.6:6000/api/storeDailyMedicine", {
-  //           userId,
-  //           date,
-  //           morning: updatedState.morning || [],
-  //           noon: updatedState.noon || [],
-  //           evening: updatedState.evening || [],
-  //           night: updatedState.night || [],
-  //         })
-  //         .then((response) => {
-  //           if (response.status === 201) {
-  //             console.log("Medicine status updated successfully in backend!");
-  //           }
-  //         })
-  //         .catch((error) => {
-  //           console.error("Error updating medicine status in backend: ", error);
-  //         });
-
-  //       return updatedState;
-  //     });
-
-  //     // console.log(
-  //     //   "Medicines for today updated as :",
-  //     //   JSON.stringify(medicinesForToday, null, 2)
-  //     // );
-  //   };
 
   const updateMedicineStatus = async (
     timeSlot: TimeSlot,

@@ -16,6 +16,9 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { stackScreens } from "../../Navigation/RootNavigation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useUser } from "../../UserContext";
+import axios from "axios";
+import { API, getToken, getTokenAndCheckExpiry } from "../../apiConfig";
+import moment from "moment";
 // Get screen dimensions
 const { width, height } = Dimensions.get("window");
 
@@ -30,7 +33,109 @@ const HomeScreen = (props: propsType) => {
     // setIsAuthenticated,
     isPlanActivated,
     setIsPlanActivated,
+    isFollowUpDateReached,
+    setIsFollowUpDateReached,
   } = useUser();
+
+  // const [isFollowUpDateReached, setIsFollowUpDateReached] = useState(false);
+  const [isLoading, setIsLoading] = useState<any>();
+  const parseDate = (dateString: any) => {
+    return moment(dateString, [
+      "YYYY-MM-DD",
+      "D MMM YYYY",
+      "DD-MM-YYYY",
+      "DD/MM/YYYY",
+      "D MMMM YYYY",
+    ]).toDate();
+  };
+
+  // Fetch and Check Follow-up Date
+  const checkFollowUpDate = async () => {
+    setIsLoading(true);
+    try {
+      // Step 1: Check if follow-up date is already in AsyncStorage
+      let storedFollowUpDate = await AsyncStorage.getItem("followUp");
+
+      const today = new Date().toISOString().split("T")[0];
+
+      if (storedFollowUpDate) {
+        console.log("there is storedFollowUpDate : HM ", storedFollowUpDate);
+        storedFollowUpDate = parseDate(storedFollowUpDate)
+          .toISOString()
+          .split("T")[0];
+        console.log(
+          "after parsing storedFollowUpDate :MH ",
+          storedFollowUpDate
+        );
+        // Step 2: If present, check if today's date is past the follow-up date
+        if (today >= storedFollowUpDate) {
+          console.log("Follow-up date has been reached. Skipping API calls.");
+          setIsFollowUpDateReached(true);
+          setIsLoading(false);
+        }
+        console.log("that follow up date from async is finished");
+      } else {
+        console.log("follow date not in async ,fetch frm api");
+        // Step 3: If not present, fetch follow-up date from API
+        const token = await getToken();
+        const userId = await AsyncStorage.getItem("userId");
+        if (!token || !userId) {
+          setIsLoading(false);
+          return;
+        }
+        getTokenAndCheckExpiry(token, navigation);
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        console.log(
+          "req followdate from api",
+          `${API.GET_SAVED_DATA}/${userId}`
+        );
+
+        const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
+
+        if (
+          response.status === 200 &&
+          response?.data?.discharge_details?.follow_up_date
+        ) {
+          console.log(
+            "fetching successfull",
+            response?.data?.discharge_details?.follow_up_date
+          );
+
+          const fetchedFollowUpDate = parseDate(
+            response?.data?.discharge_details?.follow_up_date
+          )
+            .toISOString()
+            .split("T")[0];
+
+          console.log("after splitting ", fetchedFollowUpDate);
+
+          // Store the fetched follow-up date in AsyncStorage
+          await AsyncStorage.setItem("followUp", fetchedFollowUpDate);
+
+          // Check if today's date is past the fetched follow-up date
+          if (today >= fetchedFollowUpDate) {
+            console.log("Follow-up date has been reached. Skipping API calls.");
+            setIsLoading(false);
+            setIsFollowUpDateReached(true);
+          }
+        }
+      }
+    } catch (error) {
+      setIsLoading(false);
+      setIsFollowUpDateReached(false);
+      // checkFollowUpDate();
+
+      console.error("Error checking follow-up date: home screen ", error);
+    }
+  };
+
+  useEffect(() => {
+    checkFollowUpDate();
+    console.log(
+      "checking follow up date in home screen: is follow up date reahced",
+      isFollowUpDateReached
+    );
+  }, [isFollowUpDateReached]);
 
   useEffect(() => {
     console.log("checking plan status ....");
@@ -56,6 +161,7 @@ const HomeScreen = (props: propsType) => {
 
   // Fetch and parse data from AsyncStorage
   useEffect(() => {
+    // if (isFollowUpDateReached) return;
     const fetchData = async () => {
       try {
         let data = await AsyncStorage.getItem("SavedData");
@@ -78,6 +184,7 @@ const HomeScreen = (props: propsType) => {
   }, []);
 
   const handlePressDailyMedication = () => {
+    if (isFollowUpDateReached) return;
     // console.log("v", isPlanActivated);
     console.log("daily medications clicked");
     // Navigate to the Daily Medicine screen
@@ -85,18 +192,33 @@ const HomeScreen = (props: propsType) => {
   };
 
   const handleNotActivatedState = () => {
-    console.log("plan is not activated");
-    Alert.alert(
-      "Plan Not Activated",
-      "Please upload your medical documents and generate a health plan.",
-      [
-        {
-          text: "OK",
-          onPress: () => console.log("Dialog closed"),
-        },
-      ]
-    );
+    if (!isPlanActivated) {
+      console.log("plan is not activated");
+      Alert.alert(
+        "Plan Not Activated",
+        "Please upload your medical documents and generate a health plan.",
+        [
+          {
+            text: "OK",
+            onPress: () => console.log("Dialog closed"),
+          },
+        ]
+      );
+    } else if (isFollowUpDateReached) {
+      console.log("follow up reached");
+      Alert.alert(
+        "Current Plan has Expired!",
+        "Please upload new medical documents and generate a health plan.",
+        [
+          {
+            text: "OK",
+            onPress: () => console.log("Dialog closed"),
+          },
+        ]
+      );
+    }
   };
+
   return (
     // <ScrollView contentContainerStyle={styles.container}>
     <View style={styles.container}>
@@ -146,7 +268,7 @@ const HomeScreen = (props: propsType) => {
           <TouchableOpacity
             style={styles.reminderButton}
             onPress={
-              isPlanActivated
+              isPlanActivated && !isFollowUpDateReached
                 ? handlePressDailyMedication
                 : handleNotActivatedState
             }
@@ -183,7 +305,7 @@ const HomeScreen = (props: propsType) => {
           <TouchableOpacity
             style={styles.monitorButton}
             onPress={() => {
-              isPlanActivated
+              isPlanActivated && !isFollowUpDateReached
                 ? navigation.navigate("Medications")
                 : handleNotActivatedState();
             }}

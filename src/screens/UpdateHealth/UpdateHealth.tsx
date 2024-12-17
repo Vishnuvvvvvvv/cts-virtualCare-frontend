@@ -8,8 +8,9 @@ import { stackScreens } from "../../Navigation/RootNavigation";
 // import { stackScreens as stackScreens2 }  from "../../Navigation/RootNavigation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { API } from "../../apiConfig";
+import { API, getToken, getTokenAndCheckExpiry } from "../../apiConfig";
 import { useUser } from "../../UserContext";
+import moment from "moment";
 
 type propsType = NativeStackScreenProps<stackScreens, "updateHealth">;
 
@@ -27,19 +28,6 @@ const UpdateHealth = (props: propsType) => {
     setModalVisible(true);
   };
 
-  // const handleSaveSymptoms = () => {
-  //   setSymptomsData((prevData) => ({
-  //     ...prevData,
-  //     [`day${dayCount}`]: prevData[`day${dayCount}`]
-  //       ? `${prevData[`day${dayCount}`]}\n${symptoms}` // Append new symptoms
-  //       : symptoms, // Add as new if no existing data
-  //   }));
-  //   console.log(`Symptoms for Day ${dayCount}: ${symptoms}`);
-  //   // console.log("Updated Symptoms Data:", symptomsData);
-  //   setModalVisible(false);
-  //   setSymptoms(""); // Clear input
-  // };
-
   // Function to get the current date in `dd-mm-yyyy` format
   const getCurrentDate = () => {
     const today = new Date();
@@ -48,62 +36,6 @@ const UpdateHealth = (props: propsType) => {
     const year = today.getFullYear();
     return `${year}-${month}-${day}`;
   };
-
-  /**
-  const handleSaveSymptoms = () => {
-    const currentDate = getCurrentDate(); // Get the current date
-
-    setSymptomsData((prevData) => ({
-      ...prevData,
-      [currentDate]: prevData[currentDate]
-        ? `${prevData[currentDate]}. ${symptoms}` // Append new symptoms if already present
-        : symptoms, // Add as new if no existing data
-    }));
-
-    console.log(`Symptoms for ${currentDate}: ${symptoms}`);
-    // console.log("Updated Symptoms Data:", symptomsData);
-
-    setModalVisible(false);
-    setSymptoms(""); // Clear input
-  };
- */
-
-  /** const handleSaveSymptoms = async () => {
-    const currentDate = getCurrentDate(); // Get the current date
-
-    try {
-      // Fetch existing data from AsyncStorage for the current date
-      const existingData = await AsyncStorage.getItem(
-        `symptoms-${currentDate}`
-      );
-      let updatedSymptoms = symptoms;
-
-      // If data exists, append the new symptoms
-      if (existingData) {
-        updatedSymptoms = `${existingData}. ${symptoms}`;
-      }
-
-      // Store the updated symptoms in AsyncStorage
-      await AsyncStorage.setItem(`symptoms-${currentDate}`, updatedSymptoms);
-
-      // Update local state for UI purposes
-      setSymptomsData((prevData) => ({
-        ...prevData,
-        [currentDate]: updatedSymptoms,
-      }));
-
-      console.log(`Symptoms for ${currentDate}: ${updatedSymptoms}`);
-    } catch (error) {
-      console.error("Error saving symptoms:", error);
-    }
-
-    // Close the modal and clear the symptoms input field
-    setModalVisible(false);
-    setSymptoms(""); // Clear input
-  };
- */
-
-  // const [userId, setUserId] = useState("John David");
 
   const fetchUserId = async () => {
     try {
@@ -125,15 +57,14 @@ const UpdateHealth = (props: propsType) => {
     console.log("preparing to send ....");
 
     try {
-      // const response = await axios.post(
-      //   "http://172.18.116.122:6000/api/saveSymptoms",
-      //   {
-      //     userId: userId, // Replace with actual user ID
-      //     symptomsText,
-      //     date: currentDate,
-      //   }
-      // );
-      // console.log(":====:", API.STORE_SYMPTOMS);
+      const token = await getToken();
+      if (!token) {
+        console.log("update heaklth : no token -");
+        return;
+      }
+      // Set the Authorization header globally
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       const response = await axios.post(`${API.STORE_SYMPTOMS}`, {
         userId: userId, // Replace with actual user ID
         symptomsText,
@@ -151,29 +82,6 @@ const UpdateHealth = (props: propsType) => {
     setSymptoms(""); // Clear input
     setModalVisible(false);
   };
-
-  // Retrieve all data (for display or debugging purposes)
-  useEffect(() => {
-    const fetchAllKeys = async () => {
-      try {
-        const keys = await AsyncStorage.getAllKeys();
-        console.log("keys ", keys);
-        // const entries = await AsyncStorage.multiGet(keys);
-        // const data = Object.fromEntries(entries);
-        // const dd = JSON.stringify(data, null, 2);
-        // console.log("All Symptoms Data:", dd);
-        // setSymptomsData(data);
-      } catch (error) {
-        console.error("Error fetching symptoms data:", error);
-      }
-    };
-
-    fetchAllKeys();
-  }, []);
-
-  // useEffect(() => {
-  //   console.log("Updated Symptoms Data:", symptomsData);
-  // }, [symptomsData]);
 
   const handleCancel = () => {
     // console.log("Updated Symptoms Data:", symptomsData);
@@ -194,9 +102,88 @@ const UpdateHealth = (props: propsType) => {
     // setIsAuthenticated,
     isPlanActivated,
     setIsPlanActivated,
+    isFollowUpDateReached,
+    setIsFollowUpDateReached,
   } = useUser();
 
+  const parseDate = (dateString: any) => {
+    return moment(dateString, [
+      "YYYY-MM-DD",
+      "D MMM YYYY",
+      "DD-MM-YYYY",
+      "DD/MM/YYYY",
+      "D MMMM YYYY",
+    ]).toDate();
+  };
+
+  // Fetch and Check Follow-up Date
+  const checkFollowUpDate = async () => {
+    try {
+      // Step 1: Check if follow-up date is already in AsyncStorage
+      let storedFollowUpDate = await AsyncStorage.getItem("followUp");
+      const today = new Date().toISOString().split("T")[0];
+
+      if (storedFollowUpDate) {
+        console.log("there is storedFollowUpDate : UH ", storedFollowUpDate);
+        storedFollowUpDate = parseDate(storedFollowUpDate)
+          .toISOString()
+          .split("T")[0];
+        console.log(
+          "after parsing storedFollowUpDate :UH ",
+          storedFollowUpDate
+        );
+        // Step 2: If present, check if today's date is past the follow-up date
+        if (today >= storedFollowUpDate) {
+          console.log("Follow-up date has been reached. Skipping API calls.");
+          setIsFollowUpDateReached(true);
+        }
+      } else {
+        // Step 3: If not present, fetch follow-up date from API
+        const token = await getToken();
+        const userId = await AsyncStorage.getItem("userId");
+        if (!token || !userId) return;
+        getTokenAndCheckExpiry(token, navigation);
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
+
+        if (
+          response.status === 200 &&
+          response?.data?.discharge_details?.follow_up_date
+        ) {
+          // const fetchedFollowUpDate = new Date(
+          //   response?.data?.discharge_details?.follow_up_date
+          // )
+          //   .toISOString()
+          //   .split("T")[0];
+          const fetchedFollowUpDate = parseDate(
+            response?.data?.discharge_details?.follow_up_date
+          )
+            .toISOString()
+            .split("T")[0];
+
+          // Store the fetched follow-up date in AsyncStorage
+          await AsyncStorage.setItem("followUp", fetchedFollowUpDate);
+
+          // Check if today's date is past the fetched follow-up date
+          if (today >= fetchedFollowUpDate) {
+            console.error(
+              "Follow-up date has been reached. Skipping API calls."
+            );
+            setIsFollowUpDateReached(true);
+          }
+        }
+      }
+    } catch (error) {
+      console.log("Error checking follow-up date: ", error);
+    }
+  };
+
   useEffect(() => {
+    checkFollowUpDate();
+  }, [isFollowUpDateReached]);
+
+  useEffect(() => {
+    // if (isFollowUpDateReached) return;
     const checkActivationStatus = async () => {
       try {
         const planActivated = await AsyncStorage.getItem("planActivated");
@@ -213,17 +200,33 @@ const UpdateHealth = (props: propsType) => {
   }, []);
 
   const handleNotActivatedState = () => {
-    console.log("plan is not activated");
-    Alert.alert(
-      "Plan Not Activated",
-      "Please upload your medical documents and generate a health plan.",
-      [
-        {
-          text: "OK",
-          onPress: () => console.log("Dialog closed"),
-        },
-      ]
-    );
+    //if plan is not activated , display that first
+    //if plan activated ,but follow up reached , then display that
+    if (!isPlanActivated) {
+      console.log("plan is not activated");
+      Alert.alert(
+        "Plan Not Activated",
+        "Please upload your medical documents and generate a health plan.",
+        [
+          {
+            text: "OK",
+            onPress: () => console.log("Dialog closed"),
+          },
+        ]
+      );
+    } else if (isFollowUpDateReached) {
+      console.log("follow up reached");
+      Alert.alert(
+        "Current Plan has Expired!",
+        "Please upload new medical documents and generate a health plan.",
+        [
+          {
+            text: "OK",
+            onPress: () => console.log("Dialog closed"),
+          },
+        ]
+      );
+    }
   };
 
   return (
@@ -243,14 +246,16 @@ const UpdateHealth = (props: propsType) => {
       <UpdateComponent
         text={"Update Symptoms"}
         onPress={
-          isPlanActivated ? handleUpdateSymptoms : handleNotActivatedState
+          isPlanActivated && !isFollowUpDateReached
+            ? handleUpdateSymptoms
+            : handleNotActivatedState //either plan is not activated , or follow up has reached
         } // Call console.log() here
       />
 
       <UpdateComponent
         text={"Update Medication Details"}
         onPress={
-          isPlanActivated
+          isPlanActivated && !isFollowUpDateReached
             ? handleUpdateMedicationDetails
             : handleNotActivatedState
         } // Call console.log() here

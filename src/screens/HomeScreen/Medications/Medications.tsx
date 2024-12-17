@@ -2,9 +2,11 @@ import { FlatList, StyleSheet, Text, View, Image } from "react-native";
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { API } from "../../../apiConfig";
+import { API, getToken, getTokenAndCheckExpiry } from "../../../apiConfig";
+import { useNavigation } from "@react-navigation/native";
 const Medications = () => {
   const [medications, setMedications] = useState();
+  const { navigation } = useNavigation<any>(); //new line
   //   const [userId, setUserId] = useState("John David");
   // Fetch and parse data from AsyncStorage
   const fetchUserId = async () => {
@@ -59,6 +61,15 @@ const Medications = () => {
       try {
         // let data = await AsyncStorage.getItem("SavedData");
         const userId = await fetchUserId();
+        const token = await getToken();
+        if (!token) {
+          console.log("No token found");
+
+          return;
+        }
+        getTokenAndCheckExpiry(token, navigation);
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
         console.log("calling request : ", `${API.GET_SAVED_DATA}/${userId}`);
         const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
         if (response.status === 200 && response.data) {

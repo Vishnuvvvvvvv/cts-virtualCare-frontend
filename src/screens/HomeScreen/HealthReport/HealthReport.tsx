@@ -13,15 +13,10 @@ import * as Print from "expo-print"; // Import expo-print
 import * as Sharing from "expo-sharing"; // Import expo-sharing
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { API } from "../../../apiConfig";
+import { API, getToken, getTokenAndCheckExpiry } from "../../../apiConfig";
+import { useNavigation } from "@react-navigation/native";
 
 const PatientReport = () => {
-  //   const patientDetails = {
-  //     name: "John David",
-  //     age: "54 years",
-  //     bloodGroup: "B+",
-  //     illness: "Acute Myocardial Infarction",
-  //   };
   const patientDetails = {
     name: "",
     age: "",
@@ -32,6 +27,7 @@ const PatientReport = () => {
   const [medications, setMedications] = useState([] as any);
   const [fullDetails, setFullDetails] = useState({} as any);
   const [summary, setSummary] = useState("Preparing summary...");
+  const { navigation } = useNavigation<any>(); //new line
 
   const medicatn = medications?.map((med: any, index: any) => {
     return (
@@ -56,6 +52,15 @@ const PatientReport = () => {
   // Function to fetch saved data with error handling
   const fetchSavedData = async (userId: string) => {
     try {
+      const token = await getToken();
+      if (!token) {
+        console.log("no token -");
+        return;
+      }
+      getTokenAndCheckExpiry(token, navigation);
+      // Set the Authorization header globally
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
       return response?.data || {}; // Return empty object if no data
     } catch (error) {
@@ -67,6 +72,14 @@ const PatientReport = () => {
   // Function to fetch symptoms with error handling
   const fetchSymptoms = async (userId: string) => {
     try {
+      const token = await getToken();
+      if (!token) {
+        console.log("no token -");
+        return;
+      }
+      // Set the Authorization header globally
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       const response = await axios.get(`${API.GET_SYMPTOMS}/${userId}`);
       return response?.data?.symptoms || []; // Return empty array if no symptoms
     } catch (error) {
@@ -78,6 +91,14 @@ const PatientReport = () => {
   // Function to fetch daily reminders with error handling
   const fetchReminders = async (userId: string) => {
     try {
+      const token = await getToken();
+      if (!token) {
+        console.log("no token -");
+        return;
+      }
+      // Set the Authorization header globally
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       const response = await axios.get(
         `${API.GET_FULL_MEDICINE_STATUS}/${userId}`
       );

@@ -18,7 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useUser } from "../../../src/UserContext";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { stackScreens } from "../../Navigation/RootNavigation";
-import { API } from "../../apiConfig";
+import { API, getToken, getTokenAndCheckExpiry } from "../../apiConfig";
 import { ActivityIndicator } from "react-native-paper";
 
 // Define the type for the file
@@ -28,11 +28,12 @@ type FileType = {
   type: string | undefined;
   size: number | undefined;
 };
-const STORAGE_KEY = "uploadedFile";
 
 type propsType = NativeStackScreenProps<stackScreens, "UploadDocuments">;
 
 export default function UploadDocumentsScreen({ navigation }: propsType) {
+  const STORAGE_KEY = "uploadedFile";
+
   const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
   const [pdfUri, setPdfUri] = useState<string | null>(null); // State for storing the PDF URI
   const [fileUri, setFileUri] = useState<string | null>(null);
@@ -171,13 +172,21 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
     // console.log("FormData  :", formData._parts as any);
 
     try {
-      console.log("sending the file to backend");
+      const token = await getToken();
+      if (!token) {
+        console.log("Token ont available in Upload doc", token);
+        return;
+      }
+
+      getTokenAndCheckExpiry(token, navigation);
+      console.log("sending the file to backend with toakne ", token);
 
       const response = await fetch(API.UPLOAD_DOC, {
         method: "POST",
         body: formData,
         headers: {
           "Content-Type": "multipart/form-data", // Let the browser/mobile handle the Content-Type
+          Authorization: `Bearer ${token}`,
         },
       });
 

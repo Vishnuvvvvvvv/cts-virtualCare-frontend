@@ -17,7 +17,7 @@ import ActionItemsContainer from "./ActionItemsContainer";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useUser } from "../../UserContext";
 import ActiveHealthPlan from "./comp/ActiveHealthPlan";
-import { API } from "../../apiConfig";
+import { API, getToken, getTokenAndCheckExpiry } from "../../apiConfig";
 import axios from "axios";
 
 // import { stackScreens } from "../../Navigation/BottomTabNavigation"; // Make sure this path is correct
@@ -41,6 +41,7 @@ const ProfileScreen = (props: ProfileScreenProps) => {
     setIsAuthenticated,
     isPlanActivated,
     setIsPlanActivated,
+    setIsFollowUpDateReached,
   } = useUser();
 
   // console.log("username : ", userDetails.name);
@@ -62,12 +63,26 @@ const ProfileScreen = (props: ProfileScreenProps) => {
 
   useEffect(() => {
     const getUserName = async () => {
+      const delay = (ms: any) =>
+        new Promise((resolve) => setTimeout(resolve, ms));
+      await delay(1000);
       try {
         const userId = await AsyncStorage.getItem("userId");
         if (!userId) {
           console.error("User ID not found in AsyncStorage");
           return;
         }
+
+        const token = await getToken();
+        if (!token) {
+          console.log("profile 1 ,no token -");
+          return;
+        }
+
+        getTokenAndCheckExpiry(token, navigation);
+        // Set the Authorization header globally
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
         const response = await axios.get(`${API.GET_USER_DETAILS}/${userId}`);
         if (response.status === 200) {
           let userDetails = response.data;
@@ -81,16 +96,18 @@ const ProfileScreen = (props: ProfileScreenProps) => {
             JSON.stringify(userDetails)
           );
         } else {
+          navigation.navigate("login");
           console.error("Unexpected response status:", response.status);
         }
       } catch (error) {
+        navigation.navigate("login");
         console.error(
           "Eror occcured in loading data from async storage or use deatails api call"
         );
       }
     };
     getUserName();
-  }, []);
+  }, [isPlanActivated]);
 
   // const [userId, setUserId] = useState("John David");
 
@@ -102,6 +119,13 @@ const ProfileScreen = (props: ProfileScreenProps) => {
         // let value = (await AsyncStorage.getItem("SavedData")) as any;
 
         //get the unique userId[username] entered during login/signup...
+        const token = await getToken();
+        if (!token) {
+          console.log("profile no token -");
+          return;
+        }
+        // Set the Authorization header globally
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
         const userId = await AsyncStorage.getItem("userId");
 
@@ -110,6 +134,15 @@ const ProfileScreen = (props: ProfileScreenProps) => {
           console.log(`the plan for ${userId} is activated already`);
           setIsPlanActivated(true);
           await AsyncStorage.setItem("planActivated", "true");
+          // console.log(
+          //   "follow up ",
+          //   response?.data?.discharge_details?.follow_up_date
+          // );
+          // await AsyncStorage.setItem(
+          //   "followUp",
+          //   response?.data?.discharge_details?.follow_up_date
+          // );
+          // setIsFollowUpDateReached(null);
           // console.log("resplo ", response.data.userDetails.name);
           // const firstName = response?.userDetails?.name?.split(" ")[0]; // Extract the first name
           // setName(response.data.userDetails.name.split(" ")[0]);
