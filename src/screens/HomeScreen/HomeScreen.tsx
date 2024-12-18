@@ -18,7 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useUser } from "../../UserContext";
 import axios from "axios";
 import { API, getToken, getTokenAndCheckExpiry } from "../../apiConfig";
-import moment from "moment";
+import moment from "moment-timezone";
 // Get screen dimensions
 const { width, height } = Dimensions.get("window");
 
@@ -40,15 +40,6 @@ const HomeScreen = (props: propsType) => {
   // const [isFollowUpDateReached, setIsFollowUpDateReached] = useState(false);
   const [isLoading, setIsLoading] = useState<any>();
   //
-  const parseDate = (dateString: any) => {
-    return moment(dateString, [
-      "YYYY-MM-DD",
-      "D MMM YYYY",
-      "DD-MM-YYYY",
-      "DD/MM/YYYY",
-      "D MMMM YYYY",
-    ]).toDate();
-  };
 
   console.log("Inside the home screen ! ");
   // const truncateTime = (date: Date) => {
@@ -140,96 +131,191 @@ const HomeScreen = (props: propsType) => {
   //   }
   // };
 
-  const checkFollowUpDate = async () => {
-    console.log("going to check the follow up date has reached or not.... ...");
+  // const checkFollowUpDate = async () => {
+  //   console.log("going to check the follow up date has reached or not.... ...");
 
+  //   setIsLoading(true);
+  //   try {
+  //     console.log("checking whether follow up date is there in backend..");
+  //     let storedFollowUpDate = await AsyncStorage.getItem("followUp");
+
+  //     const today = truncateTime(new Date()); // Truncate today's date to remove time
+
+  //     if (storedFollowUpDate) {
+  //       console.log(
+  //         "there is storedFollowUpDate in the async storage : HM ",
+  //         storedFollowUpDate
+  //       );
+
+  //       // Parse storedFollowUpDate into a Date object
+  //       const parsedFollowUpDate = truncateTime(new Date(storedFollowUpDate));
+  //       console.log(
+  //         "after truncatingTime storedFollowUpDate frmo async storage :MH ",
+  //         parsedFollowUpDate
+  //       );
+  //       console.log("after truncating time , today is : ", today);
+
+  //       // Step 2: Compare Date objects
+  //       if (today >= parsedFollowUpDate) {
+  //         console.log(
+  //           "checking whether today>=parsedFollowupdate : yes",
+  //           today >= parsedFollowUpDate
+  //         );
+  //         console.log("Follow-up date has been reached. Skipping API calls.");
+  //         setIsFollowUpDateReached(true);
+  //       } else {
+  //         console.log("Follow-up date not yet reached.");
+  //       }
+  //     } else {
+  //       console.log("follow-up date not in AsyncStorage, fetching from API");
+
+  //       const token = await getToken();
+  //       const userId = await AsyncStorage.getItem("userId");
+
+  //       if (!token || !userId) {
+  //         setIsLoading(false);
+  //         return;
+  //       }
+
+  //       getTokenAndCheckExpiry(token, navigation);
+  //       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  //       console.log("Requesting follow-up date from API...");
+
+  //       const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
+
+  //       if (
+  //         response.status === 200 &&
+  //         response?.data?.discharge_details?.follow_up_date
+  //       ) {
+  //         console.log(
+  //           "API response success for collecting the follow up date : ",
+  //           response?.data?.discharge_details?.follow_up_date
+  //         );
+
+  //         // Parse API date and truncate time
+  //         const fetchedFollowUpDate = truncateTime(
+  //           new Date(response?.data?.discharge_details?.follow_up_date)
+  //         );
+
+  //         console.log(
+  //           "going to store the Fetched and truncated follow-up date in async storage in the form : ",
+  //           fetchedFollowUpDate.toISOString()
+  //         );
+
+  //         // Store follow-up date as ISO string
+  //         await AsyncStorage.setItem(
+  //           "followUp",
+  //           fetchedFollowUpDate.toISOString()
+  //         );
+  //         console.log(
+  //           "successfully stored the follow up date in the async storage,now compare whether today is >= fetchedFollowUpDate"
+  //         );
+  //         // Compare Date objects
+  //         if (today >= fetchedFollowUpDate) {
+  //           console.log(
+  //             "yes , the today >= fetchedFollowUpDate is true",
+  //             today >= fetchedFollowUpDate
+  //           );
+  //           console.log("Follow-up date has been reached. Skipping API calls.");
+  //           setIsFollowUpDateReached(true);
+  //         }
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Error checking follow-up date: ", error);
+  //     setIsFollowUpDateReached(false);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  const parseDate = (dateString: string) => {
+    return moment
+      .tz(
+        dateString,
+        ["YYYY-MM-DD", "D MMM YYYY", "DD-MM-YYYY", "DD/MM/YYYY", "D MMMM YYYY"],
+        "Asia/Kolkata"
+      )
+      .format("YYYY-MM-DD");
+  };
+  useEffect(() => {
+    console.log("-----------===========--------------");
+    console.log("date is ", new Date());
+    console.log("new date is is ", new Date().toLocaleString("en-IN"));
+    const todayd = new Date().toLocaleString("en-IN").split(",")[0];
+    const todayd1 = parseDate(todayd);
+
+    console.log("today's date is ", todayd1, " inside the use effect ...");
+    console.log("-----------===========--------------");
+  }, []);
+
+  const checkFollowUpDate = async () => {
+    console.log("===========*******************======================");
+    console.log("going to check the follow up date has reached or not.... ...");
+    console.log("checking ..");
     setIsLoading(true);
     try {
-      console.log("checking whether follow up date is there in backend..");
-      let storedFollowUpDate = await AsyncStorage.getItem("followUp");
+      const today = parseDate(new Date().toLocaleString("en-IN").split(",")[0]); // Truncate today's date to remove time
+      console.log("parsed form of today is ", today);
 
-      const today = truncateTime(new Date()); // Truncate today's date to remove time
+      const today1 = new Date(today);
 
-      if (storedFollowUpDate) {
+      const token = await getToken();
+      const userId = await AsyncStorage.getItem("userId");
+
+      if (!token || !userId) {
+        setIsLoading(false);
+        return;
+      }
+
+      getTokenAndCheckExpiry(token, navigation);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      console.log("Requesting follow-up date from API...");
+
+      const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
+
+      if (
+        response.status === 200 &&
+        response?.data?.discharge_details?.follow_up_date
+      ) {
         console.log(
-          "there is storedFollowUpDate in the async storage : HM ",
-          storedFollowUpDate
+          "API response success for collecting the follow up date  : ",
+          response?.data?.discharge_details?.follow_up_date
         );
 
-        // Parse storedFollowUpDate into a Date object
-        const parsedFollowUpDate = truncateTime(new Date(storedFollowUpDate));
-        console.log(
-          "after truncatingTime storedFollowUpDate frmo async storage :MH ",
-          parsedFollowUpDate
+        console.log("going to parse the data");
+        // Parse API date and truncate time
+        const fetchedFollowUpDate = parseDate(
+          response?.data?.discharge_details?.follow_up_date
         );
-        console.log("after truncating time , today is : ", today);
 
-        // Step 2: Compare Date objects
-        if (today >= parsedFollowUpDate) {
-          console.log(
-            "checking whether today>=parsedFollowupdate : yes",
-            today >= parsedFollowUpDate
-          );
+        console.log("parsed folow up date is : ", fetchedFollowUpDate);
+
+        console.log("converting the date to date object");
+        const fetchedFollowUpDate1 = new Date(fetchedFollowUpDate);
+
+        console.log("the saved date is : ", fetchedFollowUpDate1);
+
+        console.log(
+          "successfully stored the follow up date in the async storage,now compare whether today is >= fetchedFollowUpDate"
+        );
+        // Compare Date objects
+        if (today1.getTime() >= fetchedFollowUpDate1.getTime()) {
+          console.log("today date is : ", today1);
+          console.log("follow up date is: ", fetchedFollowUpDate1);
+          console.log("yes , the today >= fetchedFollowUpDate is true");
           console.log("Follow-up date has been reached. Skipping API calls.");
           setIsFollowUpDateReached(true);
         } else {
-          console.log("Follow-up date not yet reached.");
-        }
-      } else {
-        console.log("follow-up date not in AsyncStorage, fetching from API");
-
-        const token = await getToken();
-        const userId = await AsyncStorage.getItem("userId");
-
-        if (!token || !userId) {
-          setIsLoading(false);
-          return;
-        }
-
-        getTokenAndCheckExpiry(token, navigation);
-        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        console.log("Requesting follow-up date from API...");
-
-        const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
-
-        if (
-          response.status === 200 &&
-          response?.data?.discharge_details?.follow_up_date
-        ) {
+          console.log("today date is : ", today1);
+          console.log("follow up date is: ", fetchedFollowUpDate1);
           console.log(
-            "API response success for collecting the follow up date : ",
-            response?.data?.discharge_details?.follow_up_date
+            "follow up date hasn't yet reached ,so plan hasn't expired..."
           );
-
-          // Parse API date and truncate time
-          const fetchedFollowUpDate = truncateTime(
-            new Date(response?.data?.discharge_details?.follow_up_date)
-          );
-
-          console.log(
-            "going to store the Fetched and truncated follow-up date in async storage in the form : ",
-            fetchedFollowUpDate.toISOString()
-          );
-
-          // Store follow-up date as ISO string
-          await AsyncStorage.setItem(
-            "followUp",
-            fetchedFollowUpDate.toISOString()
-          );
-          console.log(
-            "successfully stored the follow up date in the async storage,now compare whether today is >= fetchedFollowUpDate"
-          );
-          // Compare Date objects
-          if (today >= fetchedFollowUpDate) {
-            console.log(
-              "yes , the today >= fetchedFollowUpDate is true",
-              today >= fetchedFollowUpDate
-            );
-            console.log("Follow-up date has been reached. Skipping API calls.");
-            setIsFollowUpDateReached(true);
-          }
+          setIsFollowUpDateReached(false);
         }
       }
+      console.log("===========*******************======================");
     } catch (error) {
       console.error("Error checking follow-up date: ", error);
       setIsFollowUpDateReached(false);
@@ -249,7 +335,7 @@ const HomeScreen = (props: propsType) => {
       "checking follow up date in home screen: is follow up date reahced",
       isFollowUpDateReached
     );
-  }, [isFollowUpDateReached]);
+  }, [isFollowUpDateReached, isPlanActivated]);
 
   useEffect(() => {
     console.log("checking plan status ....");

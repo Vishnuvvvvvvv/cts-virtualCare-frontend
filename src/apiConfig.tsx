@@ -17,28 +17,54 @@
 //   GET_SYMPTOMS: `${BASE_URL2}/api/getSymptoms`,
 // };
 
-const newURL = "http://192.168.1.217:7000";
+// const newURL = "http://192.168.1.217:7000";
+
+// export const API = {
+//   LOGIN: `${newURL}/login`,
+//   REGISTER: `${newURL}/signup`,
+//   // Add more endpoints as needed
+//   SAVE_USER_DETAILS: `${newURL}/UserDetails`,
+//   GET_USER_DETAILS: `${newURL}/UserDetails`,
+
+//   UPLOAD_DOC: `${newURL}/upload-doc`,
+//   SUMMARIZE: `${newURL}/summarize`,
+//   TRANSCRIBE: `${newURL}/transcribe`,
+
+//   SAVE_EXTRACTED_DATA: `${newURL}/saveData`, //to store the final json on reviewand Submit stage
+//   GET_SAVED_DATA: `${newURL}/getSavedData`, //to get the saved Doc, done on the above step
+
+//   GET_DAILY_MEDICINE_STATUS: `${newURL}/api/dailyMedicineStatus`,
+//   STORE_DAILY_MEDICINE: `${newURL}/api/storeDailyMedicine`,
+//   GET_FULL_MEDICINE_STATUS: `${newURL}/api/getFullMedicineStatus`,
+
+//   STORE_SYMPTOMS: `${newURL}/api/saveSymptoms`,
+//   GET_SYMPTOMS: `${newURL}/api/getSymptoms`,
+
+//   DELETE_DATA: `${newURL}/deleteData`,
+// };
+
+const newURL = "http://192.168.1.217:8000";
 
 export const API = {
   LOGIN: `${newURL}/login`,
   REGISTER: `${newURL}/signup`,
   // Add more endpoints as needed
-  SAVE_USER_DETAILS: `${newURL}/saveUserDetails`,
-  GET_USER_DETAILS: `${newURL}/getUserDetails`,
+  SAVE_USER_DETAILS: `${newURL}/UserDetails`,
+  GET_USER_DETAILS: `${newURL}/UserDetails`,
 
   UPLOAD_DOC: `${newURL}/upload-doc`,
   SUMMARIZE: `${newURL}/summarize`,
   TRANSCRIBE: `${newURL}/transcribe`,
 
   SAVE_EXTRACTED_DATA: `${newURL}/saveData`, //to store the final json on reviewand Submit stage
-  GET_SAVED_DATA: `${newURL}/getSavedData`, //to get the saved Doc, done on the above step
+  GET_SAVED_DATA: `${newURL}/saveData`, //to get the saved Doc, done on the above step
 
   GET_DAILY_MEDICINE_STATUS: `${newURL}/api/dailyMedicineStatus`,
-  STORE_DAILY_MEDICINE: `${newURL}/api/storeDailyMedicine`,
+  STORE_DAILY_MEDICINE: `${newURL}/api/dailyMedicineStatus`,
   GET_FULL_MEDICINE_STATUS: `${newURL}/api/getFullMedicineStatus`,
 
   STORE_SYMPTOMS: `${newURL}/api/saveSymptoms`,
-  GET_SYMPTOMS: `${newURL}/api/getSymptoms`,
+  GET_SYMPTOMS: `${newURL}/api/saveSymptoms`,
 
   DELETE_DATA: `${newURL}/deleteData`,
 };

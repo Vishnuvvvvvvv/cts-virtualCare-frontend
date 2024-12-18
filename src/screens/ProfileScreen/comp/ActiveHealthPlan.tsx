@@ -147,7 +147,8 @@ const ActiveHealthPlan: React.FC = () => {
     const start = truncateTime(parseDate(startDate));
     const end = truncateTime(parseDate(endDate));
     const today = truncateTime(new Date());
-    if (start >= end) return 1;
+
+    if (start.getTime() >= end.getTime()) return 1;
 
     console.log("start (local):", start.toLocaleString());
     console.log("end (local):", end.toLocaleString());
