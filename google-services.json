@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "164430046780",
+    "project_id": "cts-notification-dd9e9",
+    "storage_bucket": "cts-notification-dd9e9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:164430046780:android:8073a83506a31783d84539",
+        "android_client_info": {
+          "package_name": "dev.expo.ctsvirtualcareapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBw7-8BvJIaARRAR1kxQn8RHFK-0dq4jVY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

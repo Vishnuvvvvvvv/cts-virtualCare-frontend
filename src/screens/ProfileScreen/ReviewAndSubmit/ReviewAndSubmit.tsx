@@ -641,16 +641,21 @@ import TimeCheckbox from "./comp/TimeCheckbox"; // Import TimeCheckbox
 import axios from "axios";
 import { API, getToken } from "../../../apiConfig";
 import { ActivityIndicator } from "react-native-paper";
+import moment from "moment";
+import { useNotification } from "../../../context/NotificationContext";
 
 type propsType = NativeStackScreenProps<stackScreens, "ReviewAndSubmit">;
 
 const ReviewAndSubmit = ({ navigation }: propsType) => {
+  const { expoPushToken } = useNotification();
+
   const [extractedData, setExtractedData] = useState<any>(null);
   const [userDetails, setUserDetails] = useState<any>(null);
   const [isEditing, setIsEditing] = useState<boolean>(true);
   const { step, setStep, setIsPlanActivated } = useUser();
 
   useEffect(() => {
+    console.log("expoPushToken token is ", expoPushToken);
     const fetchUserDetails = async () => {
       try {
         const storedUserDetails = await AsyncStorage.getItem("userDetails");
@@ -691,6 +696,20 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
     return `${day}-${month}-${year}`;
   })();
 
+  const parseDate = (dateString: any) => {
+    return moment(dateString, [
+      "YYYY-MM-DD",
+      "D MMM YYYY",
+      "DD-MM-YYYY",
+      "DD/MM/YYYY",
+      "D MMMM YYYY",
+    ]).toDate();
+  };
+
+  const truncate = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  };
+
   const handleSave = async () => {
     const userId = await AsyncStorage.getItem("userId");
 
@@ -702,7 +721,7 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
       discharge_details: extractedData?.discharge_details || {},
     };
     // console.log("saved data ", saveData);
-    console.log("sending data to server ... ");
+    console.log("sending data to server ... ", saveData);
     try {
       const token = await getToken();
 
@@ -726,6 +745,39 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
 
       if (response.status === 200) {
         Alert.alert("Success", "Health Plan has been Activated successfully!");
+
+        console.log(
+          "lets set up the notfication , calling backend for setting notififcation..."
+        );
+        console.log("expoPushToken token is ", expoPushToken);
+        const payload = {
+          prescriptions: discharge_details.prescription,
+          follow_upDate: truncate(parseDate(discharge_details.follow_up_date)),
+          expoPushToken: expoPushToken,
+        };
+        try {
+          const response = await fetch(
+            "http://192.168.1.4:3006/schedule-prescriptions",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(payload),
+            }
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log("notfication Success:", data);
+          } else {
+            console.error(" notfication Failed:", await response.text());
+          }
+        } catch (error) {
+          console.error("notfication Error:", error);
+        }
+        console.log("notfication setup finsihed");
+
         setStep(3);
         setIsPlanActivated(true);
         await AsyncStorage.setItem("planActivated", "true");

@@ -5,14 +5,28 @@ import { NavigationContainer } from "@react-navigation/native";
 import RootNavigation from "./src/Navigation/RootNavigation";
 
 import { UserProvider } from "./src/UserContext";
+// import  NotificationProvider  from "./src/context/NotificationContext";
+
+import * as Notifications from "expo-notifications";
+import { NotificationProvider } from "./src/context/NotificationContext";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 function App() {
   return (
-    <UserProvider>
-      <NavigationContainer>
-        <RootNavigation />
-      </NavigationContainer>
-    </UserProvider>
+    <NotificationProvider>
+      <UserProvider>
+        <NavigationContainer>
+          <RootNavigation />
+        </NavigationContainer>
+      </UserProvider>
+    </NotificationProvider>
   );
 }
 

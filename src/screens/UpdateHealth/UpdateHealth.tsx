@@ -115,66 +115,90 @@ const UpdateHealth = (props: propsType) => {
       "D MMMM YYYY",
     ]).toDate();
   };
-
+  const truncateTime = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  };
   // Fetch and Check Follow-up Date
   const checkFollowUpDate = async () => {
+    // setIsLoading(true);
     try {
       // Step 1: Check if follow-up date is already in AsyncStorage
       let storedFollowUpDate = await AsyncStorage.getItem("followUp");
-      const today = new Date().toISOString().split("T")[0];
+
+      const today = truncateTime(new Date()); // Truncate today's date to remove time
 
       if (storedFollowUpDate) {
-        console.log("there is storedFollowUpDate : UH ", storedFollowUpDate);
-        storedFollowUpDate = parseDate(storedFollowUpDate)
-          .toISOString()
-          .split("T")[0];
+        console.log("there is storedFollowUpDate : HM ", storedFollowUpDate);
+
+        // Parse and truncate the stored follow-up date
+        // storedFollowUpDate = truncateTime(parseDate(storedFollowUpDate));
         console.log(
-          "after parsing storedFollowUpDate :UH ",
+          "after parsing storedFollowUpDate :MH ",
           storedFollowUpDate
         );
-        // Step 2: If present, check if today's date is past the follow-up date
-        if (today >= storedFollowUpDate) {
+        console.log("today is : ", today.toLocaleString());
+        // Step 2: Compare dates
+        if (today.toLocaleString() >= storedFollowUpDate) {
           console.log("Follow-up date has been reached. Skipping API calls.");
           setIsFollowUpDateReached(true);
+        } else {
+          console.log("Follow-up date not yet reached.");
         }
       } else {
-        // Step 3: If not present, fetch follow-up date from API
+        console.log("follow-up date not in AsyncStorage, fetching from API");
+
+        // Step 3: Fetch follow-up date from API
         const token = await getToken();
         const userId = await AsyncStorage.getItem("userId");
-        if (!token || !userId) return;
+
+        if (!token || !userId) {
+          // setIsLoading(false);
+          return;
+        }
+
         getTokenAndCheckExpiry(token, navigation);
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        console.log("Requesting follow-up date from API...");
+
         const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
 
         if (
           response.status === 200 &&
           response?.data?.discharge_details?.follow_up_date
         ) {
-          // const fetchedFollowUpDate = new Date(
-          //   response?.data?.discharge_details?.follow_up_date
-          // )
-          //   .toISOString()
-          //   .split("T")[0];
-          const fetchedFollowUpDate = parseDate(
+          console.log(
+            "API response success: ",
             response?.data?.discharge_details?.follow_up_date
-          )
-            .toISOString()
-            .split("T")[0];
+          );
 
-          // Store the fetched follow-up date in AsyncStorage
-          await AsyncStorage.setItem("followUp", fetchedFollowUpDate);
+          // Parse and truncate the fetched follow-up date
+          const fetchedFollowUpDate = truncateTime(
+            parseDate(response?.data?.discharge_details?.follow_up_date)
+          );
 
-          // Check if today's date is past the fetched follow-up date
-          if (today >= fetchedFollowUpDate) {
-            console.error(
-              "Follow-up date has been reached. Skipping API calls."
-            );
+          console.log(
+            "Fetched and truncated follow-up date: ",
+            fetchedFollowUpDate.toLocaleString()
+          );
+
+          // Convert to string and store in AsyncStorage
+          await AsyncStorage.setItem(
+            "followUp",
+            fetchedFollowUpDate.toLocaleString()
+          );
+
+          // Compare dates
+          if (today.toLocaleString() >= fetchedFollowUpDate.toLocaleString()) {
+            console.log("Follow-up date has been reached. Skipping API calls.");
             setIsFollowUpDateReached(true);
           }
         }
       }
     } catch (error) {
-      console.log("Error checking follow-up date: ", error);
+      console.error("Error checking follow-up date: ", error);
+      setIsFollowUpDateReached(false);
+    } finally {
+      // setIsLoading(false);
     }
   };
 

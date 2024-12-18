@@ -17,7 +17,7 @@
 //   GET_SYMPTOMS: `${BASE_URL2}/api/getSymptoms`,
 // };
 
-const newURL = "http://192.168.1.4:7000";
+const newURL = "http://192.168.1.217:7000";
 
 export const API = {
   LOGIN: `${newURL}/login`,
