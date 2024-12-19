@@ -234,7 +234,7 @@ export default function BottomTabNavigation() {
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
         console.log("Checking if user plan exists (from bottom tab)");
-        const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
+        const response = await axios.get(`${API.GET_SAVED_DATA}`);
         if (response.status === 200) {
           setIsHomeScreen(true);
           await AsyncStorage.setItem("planActivated", "true");

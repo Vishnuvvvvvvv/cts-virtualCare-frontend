@@ -163,7 +163,7 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
 
     // Create FormData and append the file
     const formData = new FormData();
-    formData.append("medicalDocument", {
+    formData.append("file", {
       uri: selectedFile.uri, // URI to the file
       name: selectedFile.name, // Ensure it has the proper file extension
       type: selectedFile.type, // Specify the correct MIME type
@@ -196,15 +196,20 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
 
       if (response.ok) {
         navigation.goBack();
-        const cleanResponse = result.replace(/```json\n|```/g, "");
-        const parsedResponse = JSON.parse(cleanResponse);
-        console.log("got json data from backend:", parsedResponse);
-
-        setPrescription(parsedResponse);
+        // const cleanResponse = result.replace(/```json\n|```/g, "");
+        // const parsedResponse = JSON.parse(cleanResponse);
+        // console.log("got json data from backend:", parsedResponse);
+        console.log("reponse of the");
+        // setPrescription(parsedResponse);
+        setPrescription(result.data);
         setStep(1);
+        // await AsyncStorage.setItem(
+        //   "Extractedjson",
+        //   JSON.stringify(parsedResponse)
+        // );
         await AsyncStorage.setItem(
           "Extractedjson",
-          JSON.stringify(parsedResponse)
+          JSON.stringify(result.data)
         );
       } else {
         console.error("Upload failed:", result);

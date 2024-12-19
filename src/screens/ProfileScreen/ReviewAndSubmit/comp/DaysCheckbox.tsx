@@ -8,7 +8,7 @@ interface DaysCheckboxProps {
 
 const DaysCheckbox = ({ selectedDays, onChange }: DaysCheckboxProps) => {
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
+  console.log("selected days are :", selectedDays);
   // Convert the selectedDays string ('1'/'0') to an array of day states
   const selectedState = selectedDays.split("").map((day) => day === "1");
 

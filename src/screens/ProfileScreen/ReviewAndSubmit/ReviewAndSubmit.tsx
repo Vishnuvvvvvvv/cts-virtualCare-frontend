@@ -688,6 +688,11 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
 
     fetchExtractedData();
   }, []);
+
+  useEffect(() => {
+    console.log("extracted atta", extractedData);
+  }, [extractedData]);
+
   const PlanActivatedDate = (() => {
     const today = new Date();
     const day = String(today.getDate()).padStart(2, "0"); // Ensure 2-digit day
@@ -714,7 +719,7 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
     const userId = await AsyncStorage.getItem("userId");
 
     const saveData = {
-      userId,
+      // userId,
       userDetails,
       treating_consultant: extractedData?.treating_consultant || {},
       PlanActivatedDate: PlanActivatedDate,
@@ -774,6 +779,7 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
             },
             body: JSON.stringify(payload),
           });
+
           if (response.ok) {
             const data = await response.json();
             console.log("notfication Success:", data);

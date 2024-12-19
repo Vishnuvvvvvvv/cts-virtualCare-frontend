@@ -229,8 +229,11 @@ const ActiveHealthPlan: React.FC = () => {
               color="#4CAF50"
               style={styles.progressBar}
             />
+
             <Text style={styles.progressText}>
-              {Math.round(progress * 100)}% Progress Made
+              Follow Up Tracker - {/* </Text> */}
+              {/* <Text style={styles.progressText}> */}
+              {Math.round(progress * 100)}% Completed
             </Text>
           </View>
 

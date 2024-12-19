@@ -34,7 +34,7 @@ const DailyMedication = () => {
         return storedUserId; // Update state with the userId from AsyncStorage
       }
     } catch (error) {
-      console.error("Error fetching userId from AsyncStorage:", error);
+      console.log("Error fetching userId from AsyncStorage:", error);
     }
   };
   const [isLoading, setIsLoading] = useState(true);
@@ -55,6 +55,7 @@ const DailyMedication = () => {
 
         // console.log("get saved data: ", API.GET_SAVED_DATA);
         const response = await axios.get(`${API.GET_SAVED_DATA}`);
+        console.log("res >>>>>>", response.data);
         if (response.status === 200 && response.data) {
           console.log(
             "Succefully Fetched prescription data from backend:",
@@ -68,7 +69,7 @@ const DailyMedication = () => {
           setdayWiseMedicinePresciption(null);
         }
       } catch (error) {
-        console.error("Error fetching prescription data: ", error);
+        console.log("Error fetching prescription data: ", error);
       } finally {
         setIsLoading(false);
       }
@@ -88,68 +89,94 @@ const DailyMedication = () => {
 
   useEffect(() => {
     const processPrescriptionForToday = async () => {
+      console.log("()()<<<<<<<<processing prescription for today>>>>>()()");
       const today = new Date();
       const date = today.toISOString().split("T")[0]; // Date in YYYY-MM-DD format
 
       try {
-        const userId = await fetchUserId();
+        // const userId = await fetchUserId();
 
-        console.log(
-          "ddata is :",
-          `${API.GET_DAILY_MEDICINE_STATUS}/${userId}/${date}`
-        );
+        // console.log(
+        //   "ddata is :",
+        //   `${API.GET_DAILY_MEDICINE_STATUS}/${userId}/${date}`
+        // );
+        console.log("=====fetching  the get daily medicine status======");
         const response = await axios.get(`${API.GET_DAILY_MEDICINE_STATUS}`, {
           params: {
             date, // Query parameter passed here
           },
         });
+        console.log("response is<<<<<<<>>>>>>>", response);
+        // if (response.status === 404 ) {
+        // Check if the response contains a message
 
-        if (response.status === 200 && response.data) {
-          // Check if the response contains a message
-          console.log("there is medication data for todays date at backend ");
-          if (
-            response.data.message === "User not found or no data available."
-          ) {
-            //if the data from server is a "message" --> "no data found"
-            // Handle case where user data is not found
-            console.log(
-              "message from server {daily medication} ",
-              response.data.message
-            );
-            // Proceed with processing dayWiseMedicinePrescription since the user doesn't have any data
-            processDayWiseMedicinePrescription();
+        if (response.status === 200) {
+          //if the data from server is a "message" --> "no data found"
+          console.log("there is  medictaion data at the backend");
+
+          // Handle case where user data is not found
+          // console.log(
+          //   "message from server {daily medication} ",
+          //   response.data.message
+          // );
+          // Proceed with processing dayWiseMedicinePrescription since the user doesn't have any data
+          //   processDayWiseMedicinePrescription();
+          // } else {
+          console.log(
+            "+++++++++----checking there is data at bakcend or not------+++++"
+          );
+          // Check if the medicineSchedule is present in the response
+          const existingSchedule = response.data;
+
+          if (existingSchedule) {
+            const medicines = {
+              morning: existingSchedule.morning || [],
+              noon: existingSchedule.noon || [],
+              evening: existingSchedule.evening || [],
+              night: existingSchedule.night || [],
+            };
+
+            setMedicinesForToday(medicines);
+            console.log("setted medicines for today");
+            console.log("Medicines for today (from backend):", medicines);
           } else {
-            // Check if the medicineSchedule is present in the response
-            const existingSchedule = response.data.medicineSchedule;
-
-            if (existingSchedule) {
-              const medicines = {
-                morning: existingSchedule.morning || [],
-                noon: existingSchedule.noon || [],
-                evening: existingSchedule.evening || [],
-                night: existingSchedule.night || [],
-              };
-
-              setMedicinesForToday(medicines);
-              console.log("setted medicines for today");
-              console.log("Medicines for today (from backend):", medicines);
-            } else {
-              console.log(
-                "No medicine schedule found, processing dayWiseMedicinePrescription"
-              );
-              // If no schedule exists, process dayWiseMedicinePrescription
-              processDayWiseMedicinePrescription();
-            }
+            console.log(
+              "No medicine schedule found, processing dayWiseMedicinePrescription"
+            );
+            // If no schedule exists, process dayWiseMedicinePrescription
+            processDayWiseMedicinePrescription();
           }
-        } else {
-          console.log("Unexpected response:", response);
         }
-      } catch (error) {
+        // } else {
+        //   console.log("Unexpected response:", response);
+        // }
+      } catch (error: any) {
+        if (error.response) {
+          // Server responded with a status outside the 2xx range
+          console.error("Error response:", error.response.data);
+          if (error.response.status === 404) {
+            processDayWiseMedicinePrescription();
+            console.log("Medicines not found. Please check back later.");
+          } else {
+            alert(
+              `Error: ${error.response.data.error || "Something went wrong"}`
+            );
+          }
+        } else if (error.request) {
+          // Request was made but no response received
+          console.error("Error request:", error.request);
+          alert("Network error. Please try again.");
+        } else {
+          // Something else caused the error
+          console.error("Error message:", error.message);
+          alert("An unexpected error occurred.");
+        }
         console.error("Error processing prescription for today:", error);
       }
     };
 
     const processDayWiseMedicinePrescription = async () => {
+      console.log("started processing the data .. ");
       const delay = (ms: number) =>
         new Promise((resolve) => setTimeout(resolve, ms)); // Delay function
 
@@ -231,6 +258,7 @@ const DailyMedication = () => {
     name: string,
     newStatus: string
   ) => {
+    console.log("= updating the medications =");
     const userId = await fetchUserId();
 
     setMedicinesForToday((prevState) => {
@@ -261,7 +289,7 @@ const DailyMedication = () => {
       };
 
       // Send updated data to the backend
-      console.log("seding...");
+      console.log("seding the data to the backend ...");
       axios
         // .post("http://192.168.1.6:6000/api/storeDailyMedicine", formattedData)
         .post(`${API.STORE_DAILY_MEDICINE}`, formattedData)

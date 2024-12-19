@@ -32,22 +32,35 @@ const LoginScreen = (props: propsType) => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const checkSavedDataExists = async (userId: string) => {
-    console.log("checking ");
+    console.log(
+      "==========$$$$$$$$$$$$$$$$======API.GET_USER_DETAILS (login screen)=======$$$$$$$$$$$$$$$$$$$==================="
+    );
+    console.log("checking whether logged in user details exists in backend...");
 
     try {
-      const response = await axios.get(`${API.GET_USER_DETAILS}/${userId}`);
+      const response = await axios.get(`${API.GET_USER_DETAILS}`);
 
-      console.log("response is generated");
+      // console.log("response is generated");
       if (response.status === 200) {
         await AsyncStorage.setItem(
           "userDetails",
           JSON.stringify(response.data)
         );
+
+        console.log("UserDeatails exists in bakcend (call from login screen) ");
+
         return true;
       }
+
+      console.log(
+        "user details deosnt exist's in the backend (call from login screen)"
+      );
       return false;
     } catch (err) {
-      console.log("error in finding user details", err);
+      console.error(
+        "error in finding user details ~ (CALL FROM LOGIN SCREEN) ~ ",
+        err
+      );
       return false;
     }
   };
@@ -100,6 +113,7 @@ const LoginScreen = (props: propsType) => {
 
     try {
       console.log("loign route called..");
+
       //provide the backend endpoint for validation here
       const response = await fetch(API.LOGIN, {
         method: "POST",
@@ -150,7 +164,8 @@ const LoginScreen = (props: propsType) => {
     } catch (error) {
       // console.error("Error during login", error);
       setIsAuthenticated(false);
-      setErrorMessage("Error during login. Please try again.");
+      // setErrorMessage("Error during login. Please try again.");
+      console.error("Error during login. Please try again.");
     }
   };
 

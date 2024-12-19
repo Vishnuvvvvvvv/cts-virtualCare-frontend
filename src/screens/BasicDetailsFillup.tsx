@@ -11,7 +11,7 @@ import { API, getToken, getTokenAndCheckExpiry } from "../apiConfig";
 
 type propsType = NativeStackScreenProps<stackScreens, "basicDetailFillUp">;
 interface UserDetails {
-  userId: string;
+  // userId: string;
   name: string;
   age: string; // Changed to string to align with text input
   dateOfBirth: string; // Date of birth as a string
@@ -21,7 +21,7 @@ interface UserDetails {
 const BasicDetailsFillup = (props: propsType) => {
   const { navigation } = props;
   const [userDetails, setUserDetails] = useState<UserDetails>({
-    userId: "",
+    // userId: "",
     name: "", // Default empty string for name
     age: "", // Default empty string for age, to align with text input
     dateOfBirth: "", // Default empty string for date of birth
@@ -58,16 +58,16 @@ const BasicDetailsFillup = (props: propsType) => {
     }));
   };
 
-  useEffect(() => {
-    const fetchUserId = async () => {
-      const storedUserId = await AsyncStorage.getItem("userId");
-      setUserDetails((prevDetails) => ({
-        ...prevDetails,
-        userId: storedUserId || "defaultId",
-      }));
-    };
-    fetchUserId();
-  }, []);
+  // useEffect(() => {
+  //   const fetchUserId = async () => {
+  //     const storedUserId = await AsyncStorage.getItem("userId");
+  //     setUserDetails((prevDetails) => ({
+  //       ...prevDetails,
+  //       userId: storedUserId || "defaultId",
+  //     }));
+  //   };
+  //   fetchUserId();
+  // }, []);
 
   const storeUserData = async () => {
     try {

@@ -82,8 +82,10 @@ const ProfileScreen = (props: ProfileScreenProps) => {
         getTokenAndCheckExpiry(token, navigation);
         // Set the Authorization header globally
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-        const response = await axios.get(`${API.GET_USER_DETAILS}/${userId}`);
+        console.log(
+          "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ get user details called(profile screen) $$$$$$$$$$"
+        );
+        const response = await axios.get(`${API.GET_USER_DETAILS}`);
         if (response.status === 200) {
           let userDetails = response.data;
           console.log(
@@ -105,6 +107,10 @@ const ProfileScreen = (props: ProfileScreenProps) => {
           "Eror occcured in loading data from async storage or use deatails api call"
         );
       }
+
+      console.log(
+        "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ get user details finsihed calling (profile screen) $$$$$$$$$$"
+      );
     };
     getUserName();
   }, [isPlanActivated]);

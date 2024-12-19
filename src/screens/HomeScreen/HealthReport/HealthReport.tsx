@@ -99,10 +99,12 @@ const PatientReport = () => {
       // Set the Authorization header globally
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-      const response = await axios.get(
-        `${API.GET_FULL_MEDICINE_STATUS}/${userId}`
-      );
-      return response?.data?.userData || {}; // Return empty object if no reminders
+      const response = await axios.get(`${API.GET_FULL_MEDICINE_STATUS}`, {
+        params: {
+          full: true,
+        },
+      });
+      return response?.data || {}; // Return empty object if no reminders
     } catch (error) {
       //   console.error("Error fetching daily reminders:", error);
       return {}; // Return empty object if request fails
@@ -149,7 +151,7 @@ const PatientReport = () => {
 
       return summaryObject;
     } catch (error) {
-      console.error("Error fetching data from backend:", error);
+      console.log("Error fetching data from backend:", error);
     }
   };
 
@@ -181,7 +183,7 @@ const PatientReport = () => {
       });
       //   console.log("going to next 2");
       //   console.log("summ : ", response.data);
-      setSummary(response.data.summary); // Save the response for rendering
+      setSummary(response.data); // Save the response for rendering
     }
 
     fetchSummary();

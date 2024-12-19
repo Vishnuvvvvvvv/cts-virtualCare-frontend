@@ -95,7 +95,8 @@ const RootNavigation = () => {
     //invoke api.get_user_details
 
     try {
-      const res = await axios.get(`${API.GET_USER_DETAILS}/${userId}`);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      const res = await axios.get(`${API.GET_USER_DETAILS}`);
 
       if (res.status === 200) {
         console.log(
@@ -115,7 +116,7 @@ const RootNavigation = () => {
       setIsAuthenticated(false);
       // AsyncStorage.clear();
       // navigation.dispatch(StackActions.replace("login"));
-      console.error("error in root navigation when fetching user details", err);
+      console.log("error in root navigation when fetching user details", err);
     }
   };
   const [loading, setLoading] = useState(true);
