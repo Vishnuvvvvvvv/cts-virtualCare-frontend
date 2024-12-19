@@ -272,7 +272,7 @@ const HomeScreen = (props: propsType) => {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       console.log("Requesting follow-up date from API...");
 
-      const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
+      const response = await axios.get(`${API.GET_SAVED_DATA}`);
 
       if (
         response.status === 200 &&

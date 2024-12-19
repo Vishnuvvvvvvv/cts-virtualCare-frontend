@@ -756,17 +756,24 @@ const ReviewAndSubmit = ({ navigation }: propsType) => {
           expoPushToken: expoPushToken,
         };
         try {
-          const response = await fetch(
-            "http://192.168.1.4:3006/schedule-prescriptions",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(payload),
-            }
-          );
+          // const response = await fetch(
+          //   "http://192.168.1.4:3006/schedule-prescriptions",
+          //   {
+          //     method: "POST",
+          //     headers: {
+          //       "Content-Type": "application/json",
+          //     },
+          //     body: JSON.stringify(payload),
+          //   }
+          // );
 
+          const response = await fetch(`${API.SCHEDULE_NOTIFICATION}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
           if (response.ok) {
             const data = await response.json();
             console.log("notfication Success:", data);

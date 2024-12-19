@@ -70,8 +70,8 @@ const Medications = () => {
         getTokenAndCheckExpiry(token, navigation);
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-        console.log("calling request : ", `${API.GET_SAVED_DATA}/${userId}`);
-        const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
+        console.log("calling request : ", `${API.GET_SAVED_DATA}`);
+        const response = await axios.get(`${API.GET_SAVED_DATA}`);
         if (response.status === 200 && response.data) {
           console.log(
             "Fetched prescription data from backend:",

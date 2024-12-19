@@ -67,7 +67,7 @@ const ActiveHealthPlan: React.FC = () => {
         const userId = await fetchUserId();
 
         // console.log("---", userId);
-        const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
+        const response = await axios.get(`${API.GET_SAVED_DATA}`);
 
         if (response.status === 200) {
           console.log(

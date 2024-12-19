@@ -43,30 +43,58 @@
 //   DELETE_DATA: `${newURL}/deleteData`,
 // };
 
-const newURL = "http://192.168.1.217:8000";
+// const newURL = "http://192.168.1.217:8000";
+
+// export const API = {
+//   LOGIN: `${newURL}/login`,
+//   REGISTER: `${newURL}/signup`,
+//   // Add more endpoints as needed
+//   SAVE_USER_DETAILS: `${newURL}/UserDetails`,
+//   GET_USER_DETAILS: `${newURL}/UserDetails`,
+
+//   UPLOAD_DOC: `${newURL}/process-doc`,
+//   SUMMARIZE: `${newURL}/summarize`,
+//   TRANSCRIBE: `${newURL}/transcribe`,
+
+//   SAVE_EXTRACTED_DATA: `${newURL}/userData`, //to store the final json on reviewand Submit stage
+//   GET_SAVED_DATA: `${newURL}/userData`, //to get the saved Doc, done on the above step
+
+//   GET_DAILY_MEDICINE_STATUS: `${newURL}/api/medicine`,
+//   STORE_DAILY_MEDICINE: `${newURL}/api/medicine`,
+//   GET_FULL_MEDICINE_STATUS: `${newURL}/api/getFullMedicineStatus`,
+
+//   STORE_SYMPTOMS: `${newURL}/api/symptoms`,
+//   GET_SYMPTOMS: `${newURL}/api/symptoms`,
+
+//   DELETE_DATA: `${newURL}/deleteData`,
+// };
+
+const newURL = "http://192.168.1.217:3003";
 
 export const API = {
-  LOGIN: `${newURL}/login`,
-  REGISTER: `${newURL}/signup`,
+  LOGIN: `${newURL}/api/login`,
+  REGISTER: `${newURL}/api/signup`,
   // Add more endpoints as needed
   SAVE_USER_DETAILS: `${newURL}/UserDetails`,
   GET_USER_DETAILS: `${newURL}/UserDetails`,
 
-  UPLOAD_DOC: `${newURL}/upload-doc`,
+  UPLOAD_DOC: `${newURL}/api/process-doc`,
   SUMMARIZE: `${newURL}/summarize`,
   TRANSCRIBE: `${newURL}/transcribe`,
 
-  SAVE_EXTRACTED_DATA: `${newURL}/saveData`, //to store the final json on reviewand Submit stage
-  GET_SAVED_DATA: `${newURL}/saveData`, //to get the saved Doc, done on the above step
+  SAVE_EXTRACTED_DATA: `${newURL}/api/userData`, //to store the final json on reviewand Submit stage
+  GET_SAVED_DATA: `${newURL}/api/userData`, //to get the saved Doc, done on the above step
 
-  GET_DAILY_MEDICINE_STATUS: `${newURL}/api/dailyMedicineStatus`,
-  STORE_DAILY_MEDICINE: `${newURL}/api/dailyMedicineStatus`,
+  GET_DAILY_MEDICINE_STATUS: `${newURL}/api/medicine`,
+  STORE_DAILY_MEDICINE: `${newURL}/api/medicine`,
   GET_FULL_MEDICINE_STATUS: `${newURL}/api/getFullMedicineStatus`,
 
-  STORE_SYMPTOMS: `${newURL}/api/saveSymptoms`,
-  GET_SYMPTOMS: `${newURL}/api/saveSymptoms`,
+  STORE_SYMPTOMS: `${newURL}/api/symptoms`,
+  GET_SYMPTOMS: `${newURL}/api/symptoms`,
 
   DELETE_DATA: `${newURL}/deleteData`,
+
+  SCHEDULE_NOTIFICATION: `http://192.168.1.4:3006/schedule-prescriptions`,
 };
 
 import AsyncStorage from "@react-native-async-storage/async-storage";

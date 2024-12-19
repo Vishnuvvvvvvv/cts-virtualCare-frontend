@@ -54,7 +54,7 @@ const DailyMedication = () => {
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
         // console.log("get saved data: ", API.GET_SAVED_DATA);
-        const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
+        const response = await axios.get(`${API.GET_SAVED_DATA}`);
         if (response.status === 200 && response.data) {
           console.log(
             "Succefully Fetched prescription data from backend:",
@@ -98,9 +98,11 @@ const DailyMedication = () => {
           "ddata is :",
           `${API.GET_DAILY_MEDICINE_STATUS}/${userId}/${date}`
         );
-        const response = await axios.get(
-          `${API.GET_DAILY_MEDICINE_STATUS}/${userId}/${date}`
-        );
+        const response = await axios.get(`${API.GET_DAILY_MEDICINE_STATUS}`, {
+          params: {
+            date, // Query parameter passed here
+          },
+        });
 
         if (response.status === 200 && response.data) {
           // Check if the response contains a message

@@ -129,7 +129,7 @@ const ProfileScreen = (props: ProfileScreenProps) => {
 
         const userId = await AsyncStorage.getItem("userId");
 
-        const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
+        const response = await axios.get(`${API.GET_SAVED_DATA}`);
         if (response.status === 200) {
           console.log(`the plan for ${userId} is activated already`);
           setIsPlanActivated(true);

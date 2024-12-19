@@ -80,8 +80,8 @@ const UpdateMedicationDetails = () => {
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
         const userId = await fetchUserId();
-        console.log("calling request : ", `${API.GET_SAVED_DATA}/${userId}`);
-        const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
+        console.log("calling request : ", `${API.GET_SAVED_DATA}`);
+        const response = await axios.get(`${API.GET_SAVED_DATA}`);
 
         if (response.status === 200 && response.data) {
           console.log(

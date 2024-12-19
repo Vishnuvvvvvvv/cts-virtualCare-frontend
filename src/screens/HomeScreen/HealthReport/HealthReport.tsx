@@ -61,7 +61,7 @@ const PatientReport = () => {
       // Set the Authorization header globally
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-      const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
+      const response = await axios.get(`${API.GET_SAVED_DATA}`);
       return response?.data || {}; // Return empty object if no data
     } catch (error) {
       console.error("Error fetching saved data:", error);
@@ -80,7 +80,7 @@ const PatientReport = () => {
       // Set the Authorization header globally
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-      const response = await axios.get(`${API.GET_SYMPTOMS}/${userId}`);
+      const response = await axios.get(`${API.GET_SYMPTOMS}`);
       return response?.data?.symptoms || []; // Return empty array if no symptoms
     } catch (error) {
       //   console.error("Error fetching symptoms:", error);
