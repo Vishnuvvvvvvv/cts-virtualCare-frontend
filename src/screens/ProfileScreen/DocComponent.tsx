@@ -19,17 +19,6 @@ const DocComponent = ({ title, type, onPress, source }: propsType) => {
     }
   };
 
-  // const getFileType = () => {
-  //   switch (type) {
-  //     case "application/pdf":
-  //       return ".pdf";
-  //     case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-  //       return ".docx";
-  //     case "text/plain":
-  //       return ".txt";
-  //   }
-  // };
-
   return (
     <View style={styles.DocComponent}>
       <View style={styles.docIconContainer}>

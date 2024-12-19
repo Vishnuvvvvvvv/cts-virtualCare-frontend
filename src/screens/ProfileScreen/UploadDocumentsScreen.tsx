@@ -35,10 +35,10 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
   const STORAGE_KEY = "uploadedFile";
 
   const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
-  const [pdfUri, setPdfUri] = useState<string | null>(null); // State for storing the PDF URI
+  const [pdfUri, setPdfUri] = useState<string | null>(null);
   const [fileUri, setFileUri] = useState<string | null>(null);
-  // const [prescription,setPrescription] = useState({})
-  const { step, setStep, setPrescription } = useUser(); //use the globalContext
+
+  const { step, setStep, setPrescription } = useUser();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
       try {
         const storedFile = await AsyncStorage.getItem(STORAGE_KEY);
         if (storedFile) {
-          setSelectedFile(JSON.parse(storedFile)); // Parse the stored file data
+          setSelectedFile(JSON.parse(storedFile));
         }
       } catch (error) {
         console.log("Error loading stored file: ", error);
@@ -68,9 +68,6 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
         ],
       });
 
-      // console.log("result : ", docRes);
-
-      //  const formData = new FormData();
       const assets = docRes.assets;
       if (!assets) return;
 
@@ -82,17 +79,10 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
         type: file.mimeType,
         size: file.size,
       };
-      // console.log("doc", doc);
-      //  formData.append("audioFile", audioFile as any);
-      // console.log("form Data: ", formData);
 
-      // Store the selected file in AsyncStorage
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(doc));
 
       setSelectedFile(doc);
-      // console.log("prev. Step state is", step);
-
-      // console.log("step State is ", step);
     } catch (error) {
       console.log("Error while selecting file: ", error);
     }
@@ -125,13 +115,12 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
           await IntentLauncher.startActivityAsync(
             "android.intent.action.VIEW",
             {
-              data: contentUri, // Use contentUri directly here
+              data: contentUri,
               flags: 1,
               type: "application/pdf",
             }
           );
         } else if (Platform.OS === "ios") {
-          // Set the pdfUri to the selected file's uri for WebView
           setPdfUri(selectedFile.uri);
         }
       } catch (error) {
@@ -142,13 +131,6 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
     }
   };
   const [fullScreen, setFullScreen] = useState<boolean>(false);
-  // console.log("fullscreen ", fullScreen);
-
-  //   const handleNext = () => {
-  //     navigation.goBack();
-  //     setStep(1); // Increment the step by 1
-  //     console.log("Current step:", step + 1); // Log the new step value
-  //   };
 
   const handleNext = async () => {
     setLoading(true);
@@ -158,18 +140,13 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
       return;
     }
 
-    // Log the selected file to confirm its structure
-    console.log("Selected file:", selectedFile);
-
     // Create FormData and append the file
     const formData = new FormData();
     formData.append("file", {
-      uri: selectedFile.uri, // URI to the file
-      name: selectedFile.name, // Ensure it has the proper file extension
-      type: selectedFile.type, // Specify the correct MIME type
+      uri: selectedFile.uri,
+      name: selectedFile.name,
+      type: selectedFile.type,
     } as any);
-
-    // console.log("FormData  :", formData._parts as any);
 
     try {
       const token = await getToken();
@@ -185,28 +162,21 @@ export default function UploadDocumentsScreen({ navigation }: propsType) {
         method: "POST",
         body: formData,
         headers: {
-          "Content-Type": "multipart/form-data", // Let the browser/mobile handle the Content-Type
+          "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
       });
 
-      // console.log("got response from backend");
       const result = await response.json();
-      // console.log("res: ", result);
 
       if (response.ok) {
         navigation.goBack();
-        // const cleanResponse = result.replace(/```json\n|```/g, "");
-        // const parsedResponse = JSON.parse(cleanResponse);
-        // console.log("got json data from backend:", parsedResponse);
+
         console.log("reponse of the");
         // setPrescription(parsedResponse);
         setPrescription(result.data);
         setStep(1);
-        // await AsyncStorage.setItem(
-        //   "Extractedjson",
-        //   JSON.stringify(parsedResponse)
-        // );
+
         await AsyncStorage.setItem(
           "Extractedjson",
           JSON.stringify(result.data)
@@ -339,10 +309,6 @@ const styles = StyleSheet.create({
     width: "80%",
   },
   PickBtn: {
-    // position: "absolute", // Use absolute positioning
-    // top: "50%", // Move to the middle vertically
-    // left: "50%", // Move to the middle horizontally
-    // transform: [{ translateX: -50 }, { translateY: -50 }], // Offset the button by half its size to truly center it
     borderWidth: 1,
     padding: 4,
     height: 200,
@@ -366,21 +332,6 @@ const styles = StyleSheet.create({
   },
 
   Btn: {
-    // // borderWidth: 1,
-    // flexDirection: "row",
-    // width: "40%",
-    // // alignSelf: "center",
-    // position: "absolute",
-    // bottom: 10, // Align it to the bottom
-    // left: "30%", // Align it to the left
-    // right: "30%", // Align it to the right
-    // // padding: 20, // Optional padding
-    // borderRadius: 12,
-    // height: 50,
-    // backgroundColor: "#FFFFFF",
-    // borderColor: "#A0A0A0",
-    // justifyContent: "space-evenly",
-    // alignItems: "center",
     flexDirection: "row",
     width: "60%",
     position: "absolute",

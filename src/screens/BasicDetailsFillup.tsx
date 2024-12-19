@@ -58,17 +58,6 @@ const BasicDetailsFillup = (props: propsType) => {
     }));
   };
 
-  // useEffect(() => {
-  //   const fetchUserId = async () => {
-  //     const storedUserId = await AsyncStorage.getItem("userId");
-  //     setUserDetails((prevDetails) => ({
-  //       ...prevDetails,
-  //       userId: storedUserId || "defaultId",
-  //     }));
-  //   };
-  //   fetchUserId();
-  // }, []);
-
   const storeUserData = async () => {
     try {
       const token = await getToken();
@@ -94,13 +83,6 @@ const BasicDetailsFillup = (props: propsType) => {
         Alert.alert("Error", "An unexpected response occurred (BDF screen)");
         return false;
       }
-
-      // await AsyncStorage.setItem("userDetails", JSON.stringify(userDetails));
-      // const storedUserDetails = await AsyncStorage.getItem("userDetails");
-      // console.log(
-      //   "userDetails :: ",
-      //   storedUserDetails ? JSON.parse(storedUserDetails) : null
-      // );
     } catch (error) {
       console.error("Error storing user data: (BDF screen)", error);
       return false;

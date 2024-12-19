@@ -9,9 +9,9 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation, NavigationProp } from "@react-navigation/native"; // Import useNavigation hook
+import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { stackScreens } from "../../Navigation/RootNavigation"; // Ensure this path is correct
+import { stackScreens } from "../../Navigation/RootNavigation";
 import GetStartedContainer from "./GetStartedContainer";
 import ActionItemsContainer from "./ActionItemsContainer";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
@@ -19,8 +19,7 @@ import { useUser } from "../../UserContext";
 import ActiveHealthPlan from "./comp/ActiveHealthPlan";
 import { API, getToken, getTokenAndCheckExpiry } from "../../apiConfig";
 import axios from "axios";
-
-// import { stackScreens } from "../../Navigation/BottomTabNavigation"; // Make sure this path is correct
+import { useNotification } from "../../context/NotificationContext";
 
 //Main page
 
@@ -43,8 +42,10 @@ const ProfileScreen = (props: ProfileScreenProps) => {
     setIsPlanActivated,
     setIsFollowUpDateReached,
   } = useUser();
+  const { expoPushToken } = useNotification();
 
-  // console.log("username : ", userDetails.name);
+  console.log("expo push notification id is : ", expoPushToken);
+
   const { navigation } = props;
 
   const handleSignOut = async () => {
@@ -55,7 +56,7 @@ const ProfileScreen = (props: ProfileScreenProps) => {
     // await AsyncStorage.setItem("planActivated", "false");
     navigation.reset({
       index: 0,
-      routes: [{ name: "Register" }], // Navigate back to login screen in stack navigation
+      routes: [{ name: "Register" }],
     });
   };
 
@@ -69,29 +70,22 @@ const ProfileScreen = (props: ProfileScreenProps) => {
       try {
         const userId = await AsyncStorage.getItem("userId");
         if (!userId) {
-          console.error("User ID not found in AsyncStorage");
           return;
         }
 
         const token = await getToken();
         if (!token) {
-          console.log("profile 1 ,no token -");
           return;
         }
 
         getTokenAndCheckExpiry(token, navigation);
-        // Set the Authorization header globally
+
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        console.log(
-          "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ get user details called(profile screen) $$$$$$$$$$"
-        );
+
         const response = await axios.get(`${API.GET_USER_DETAILS}`);
         if (response.status === 200) {
           let userDetails = response.data;
-          console.log(
-            "user details fetched from backend (loding profile page)",
-            userDetails
-          );
+
           setName(userDetails?.name);
           await AsyncStorage.setItem(
             "userDetails",
@@ -99,32 +93,18 @@ const ProfileScreen = (props: ProfileScreenProps) => {
           );
         } else {
           navigation.navigate("login");
-          console.error("Unexpected response status:", response.status);
         }
       } catch (error) {
         navigation.navigate("login");
-        console.error(
-          "Eror occcured in loading data from async storage or use deatails api call"
-        );
       }
-
-      console.log(
-        "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ get user details finsihed calling (profile screen) $$$$$$$$$$"
-      );
     };
     getUserName();
   }, [isPlanActivated]);
 
-  // const [userId, setUserId] = useState("John David");
-
-  //const [step, setStep] = useState(0); //for updating the step taken, [ie.., upload doc, more info ,submit]
   useEffect(() => {
     // Define the async function inside the useEffect
     const checkPlanActivation = async () => {
       try {
-        // let value = (await AsyncStorage.getItem("SavedData")) as any;
-
-        //get the unique userId[username] entered during login/signup...
         const token = await getToken();
         if (!token) {
           console.log("profile no token -");
@@ -137,49 +117,22 @@ const ProfileScreen = (props: ProfileScreenProps) => {
 
         const response = await axios.get(`${API.GET_SAVED_DATA}`);
         if (response.status === 200) {
-          console.log(`the plan for ${userId} is activated already`);
           setIsPlanActivated(true);
           await AsyncStorage.setItem("planActivated", "true");
-          // console.log(
-          //   "follow up ",
-          //   response?.data?.discharge_details?.follow_up_date
-          // );
-          // await AsyncStorage.setItem(
-          //   "followUp",
-          //   response?.data?.discharge_details?.follow_up_date
-          // );
-          // setIsFollowUpDateReached(null);
-          // console.log("resplo ", response.data.userDetails.name);
-          // const firstName = response?.userDetails?.name?.split(" ")[0]; // Extract the first name
-          // setName(response.data.userDetails.name.split(" ")[0]);
         } else {
-          console.log(`the plan for ${userId} is not activated `);
           await AsyncStorage.setItem("planActivated", "false");
           setIsPlanActivated(false);
         }
-
-        // if (value) {
-        //   value = JSON.parse(value) as any;
-        //   console.log("v ", value?.userDetails);
-        //   console.log("there is a value");
-        //   setIsPlanActivated(true);
-        // } else {
-        //   setIsPlanActivated(false);
-        // }
-      } catch (error) {
-        console.error("Error checking SavedData in AsyncStorage:", error);
-      }
+      } catch (error) {}
     };
 
     checkPlanActivation(); // Call the async function
-    console.log("value :", isPlanActivated);
-    console.log("value of name :", name);
   }, [isPlanActivated]);
-  console.log("value of name :", name);
+
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require("../../../assets/ProfileIcons/backGroundImage.png")} // Change to your background image path
+        source={require("../../../assets/ProfileIcons/backGroundImage.png")}
         style={styles.backgroundImage}
       >
         <View style={styles.topContainer}>
@@ -235,7 +188,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     paddingLeft: 10,
     paddingRight: 20,
-    justifyContent: "space-between", // Space between text and icon
+    justifyContent: "space-between",
     alignItems: "center",
     height: "20%",
   },

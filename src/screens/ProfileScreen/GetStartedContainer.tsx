@@ -109,11 +109,6 @@ const GetStartedContainer = () => {
           <Text style={styles.label}>Submit</Text>
         </View>
       </View>
-      {/* <View style={styles.IconTextContainer}>
-        <Text style={styles.txt}> Upload Docs</Text>
-        <Text style={styles.txt}> More Info</Text>
-        <Text style={styles.txt}> Submit</Text>
-      </View> */}
     </View>
   );
 };

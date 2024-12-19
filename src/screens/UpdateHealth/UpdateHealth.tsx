@@ -118,99 +118,10 @@ const UpdateHealth = (props: propsType) => {
   const truncateTime = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
   };
-  // Fetch and Check Follow-up Date
-  // const checkFollowUpDate = async () => {
-  //   // setIsLoading(true);
-  //   try {
-  //     // Step 1: Check if follow-up date is already in AsyncStorage
-  //     let storedFollowUpDate = await AsyncStorage.getItem("followUp");
-
-  //     const today = truncateTime(new Date()); // Truncate today's date to remove time
-
-  //     if (storedFollowUpDate) {
-  //       console.log("there is storedFollowUpDate : HM ", storedFollowUpDate);
-
-  //       // Parse and truncate the stored follow-up date
-  //       // storedFollowUpDate = truncateTime(parseDate(storedFollowUpDate));
-  //       console.log(
-  //         "after parsing storedFollowUpDate :MH ",
-  //         storedFollowUpDate
-  //       );
-  //       console.log("today is : ", today.toLocaleString());
-  //       // Step 2: Compare dates
-  //       if (today.toLocaleString() >= storedFollowUpDate) {
-  //         console.log("Follow-up date has been reached. Skipping API calls.");
-  //         setIsFollowUpDateReached(true);
-  //       } else {
-  //         console.log("Follow-up date not yet reached.");
-  //       }
-  //     } else {
-  //       console.log("follow-up date not in AsyncStorage, fetching from API");
-
-  //       // Step 3: Fetch follow-up date from API
-  //       const token = await getToken();
-  //       const userId = await AsyncStorage.getItem("userId");
-
-  //       if (!token || !userId) {
-  //         // setIsLoading(false);
-  //         return;
-  //       }
-
-  //       getTokenAndCheckExpiry(token, navigation);
-  //       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  //       console.log("Requesting follow-up date from API...");
-
-  //       const response = await axios.get(`${API.GET_SAVED_DATA}/${userId}`);
-
-  //       if (
-  //         response.status === 200 &&
-  //         response?.data?.discharge_details?.follow_up_date
-  //       ) {
-  //         console.log(
-  //           "API response success: ",
-  //           response?.data?.discharge_details?.follow_up_date
-  //         );
-
-  //         // Parse and truncate the fetched follow-up date
-  //         const fetchedFollowUpDate = truncateTime(
-  //           parseDate(response?.data?.discharge_details?.follow_up_date)
-  //         );
-
-  //         console.log(
-  //           "Fetched and truncated follow-up date: ",
-  //           fetchedFollowUpDate.toLocaleString()
-  //         );
-
-  //         // Convert to string and store in AsyncStorage
-  //         await AsyncStorage.setItem(
-  //           "followUp",
-  //           fetchedFollowUpDate.toLocaleString()
-  //         );
-
-  //         // Compare dates
-  //         if (today.toLocaleString() >= fetchedFollowUpDate.toLocaleString()) {
-  //           console.log("Follow-up date has been reached. Skipping API calls.");
-  //           setIsFollowUpDateReached(true);
-  //         }
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Error checking follow-up date: ", error);
-  //     setIsFollowUpDateReached(false);
-  //   } finally {
-  //     // setIsLoading(false);
-  //   }
-  // };
 
   const checkFollowUpDate = async () => {
-    console.log("===========*******************======================");
-    console.log("&&&&&&&&&&&&&&&&&&&&&&&");
-    console.log("going to check the follow up date has reached or not.... ...");
-    console.log("checking ..");
-
     try {
       const today = parseDate(new Date().toLocaleString("en-IN").split(",")[0]); // Truncate today's date to remove time
-      console.log("parsed form of today is ", today);
 
       const today1 = new Date(today);
 
@@ -223,7 +134,6 @@ const UpdateHealth = (props: propsType) => {
 
       getTokenAndCheckExpiry(token, navigation);
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      console.log("Requesting follow-up date from API...");
 
       const response = await axios.get(`${API.GET_SAVED_DATA}`);
 
@@ -231,47 +141,21 @@ const UpdateHealth = (props: propsType) => {
         response.status === 200 &&
         response?.data?.discharge_details?.follow_up_date
       ) {
-        console.log(
-          "API response success for collecting the follow up date  : ",
-          response?.data?.discharge_details?.follow_up_date
-        );
-
-        console.log("going to parse the data");
         // Parse API date and truncate time
         const fetchedFollowUpDate = parseDate(
           response?.data?.discharge_details?.follow_up_date
         );
 
-        console.log("parsed folow up date is : ", fetchedFollowUpDate);
-
-        console.log("converting the date to date object");
         const fetchedFollowUpDate1 = new Date(fetchedFollowUpDate);
 
-        console.log("the saved date is : ", fetchedFollowUpDate1);
-
-        console.log(
-          "successfully stored the follow up date in the async storage,now compare whether today is >= fetchedFollowUpDate"
-        );
         // Compare Date objects
         if (today1.getTime() >= fetchedFollowUpDate1.getTime()) {
-          console.log("today date is : ", today1);
-          console.log("follow up date is: ", fetchedFollowUpDate1);
-          console.log("yes , the today >= fetchedFollowUpDate is true");
-          console.log("Follow-up date has been reached. Skipping API calls.");
           setIsFollowUpDateReached(true);
         } else {
-          console.log("today date is : ", today1);
-          console.log("follow up date is: ", fetchedFollowUpDate1);
-          console.log(
-            "follow up date hasn't yet reached ,so plan hasn't expired..."
-          );
           setIsFollowUpDateReached(false);
         }
       }
-      console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-      console.log("===========*******************======================");
     } catch (error) {
-      console.error("Error checking follow-up date: ", error);
       setIsFollowUpDateReached(false);
     }
   };
@@ -289,19 +173,16 @@ const UpdateHealth = (props: propsType) => {
         // If the key doesn't exist, default to `false`
         setIsPlanActivated(planActivated === "true");
       } catch (error) {
-        console.error("Error checking plan activation status:", error);
         setIsPlanActivated(false); // Fallback to false in case of an error
       }
     };
     checkActivationStatus;
-    console.log("Activation plan status ", isPlanActivated);
   }, []);
 
   const handleNotActivatedState = () => {
     //if plan is not activated , display that first
     //if plan activated ,but follow up reached , then display that
     if (!isPlanActivated) {
-      console.log("plan is not activated");
       Alert.alert(
         "Plan Not Activated",
         "Please upload your medical documents and generate a health plan.",
@@ -313,7 +194,6 @@ const UpdateHealth = (props: propsType) => {
         ]
       );
     } else if (isFollowUpDateReached) {
-      console.log("follow up reached");
       Alert.alert(
         "Current Plan has Expired!",
         "Please upload new medical documents and generate a health plan.",

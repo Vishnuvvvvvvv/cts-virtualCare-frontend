@@ -33,8 +33,8 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
   pressedEffect: {
-    transform: [{ scale: 0.96 }], // Slightly shrink the button
-    opacity: 0.9, // Slightly dim the button
+    transform: [{ scale: 0.96 }],
+    opacity: 0.9,
   },
   optionButton: {
     flexDirection: "row",

@@ -165,24 +165,12 @@ const PatientReport = () => {
   useEffect(() => {
     async function fetchSummary() {
       summaryObject = await prepareAndSendSummary();
-      //   console.log(
-      //     "medicatiosn : ",
-      //     fullDetails?.savedData?.discharge_details?.prescription
-      //   );
 
-      //   console.log("going to next");
-      //   const response = await axios.post(
-      //     "http://192.168.16.112:3001/summarize",
-      //     {
-      //       summaryObject,
-      //     }
-      //   );
       console.log("sending summary object to summarise");
       const response = await axios.post(`${API.SUMMARIZE}`, {
         summaryObject,
       });
-      //   console.log("going to next 2");
-      //   console.log("summ : ", response.data);
+
       setSummary(response.data); // Save the response for rendering
     }
 
@@ -249,14 +237,8 @@ const PatientReport = () => {
 
   return (
     <View style={styles.container}>
-      {/* <View style={styles.downloadButton}>
-        <Button title="Download PDF" onPress={downloadReport} />
-      </View> */}
       <View style={styles.downloadButton}>
         <TouchableOpacity onPress={downloadReport}>
-          {/* <Icon name="download" size={30} color="#000" />  */}
-          {/* Replace name="download" with the specific icon name you prefer */}
-
           <Image
             style={styles.downloadIcon}
             source={require("../../../../assets/homeScreen/DownloadIcon.png")}
@@ -347,10 +329,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
     // backgroundColor: "",
   },
-  // iconButton: {
-  //   justifyContent: "center",
-  //   alignItems: "center",
-  // },
+
   downloadIcon: {
     width: 30,
     height: 30,

@@ -19,7 +19,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API } from "../../apiConfig";
 import { useUser } from "../../UserContext";
 import axios from "axios";
-//login screenhhh
 
 type propsType = NativeStackScreenProps<stackScreens, "login">;
 
@@ -32,11 +31,6 @@ const LoginScreen = (props: propsType) => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const checkSavedDataExists = async (userId: string) => {
-    console.log(
-      "==========$$$$$$$$$$$$$$$$======API.GET_USER_DETAILS (login screen)=======$$$$$$$$$$$$$$$$$$$==================="
-    );
-    console.log("checking whether logged in user details exists in backend...");
-
     try {
       const response = await axios.get(`${API.GET_USER_DETAILS}`);
 
@@ -47,20 +41,11 @@ const LoginScreen = (props: propsType) => {
           JSON.stringify(response.data)
         );
 
-        console.log("UserDeatails exists in bakcend (call from login screen) ");
-
         return true;
       }
 
-      console.log(
-        "user details deosnt exist's in the backend (call from login screen)"
-      );
       return false;
     } catch (err) {
-      console.error(
-        "error in finding user details ~ (CALL FROM LOGIN SCREEN) ~ ",
-        err
-      );
       return false;
     }
   };
@@ -74,46 +59,15 @@ const LoginScreen = (props: propsType) => {
   }, []);
 
   const LoginHandler = async () => {
-    console.log("login clciked", username, ": ", password);
-
     if (!username || !password) {
       setErrorMessage("Please fill out all fields");
       setIsAuthenticated(false);
       return;
     }
 
-    {
-      /*dummy user credentials : currently assume username : admin &
-       pass : password for logging in*/
-    }
-
-    // if (username && password) {
-    //   setIsAuthenticated(true);
-
-    //   const token = "user_auth_token";
-    //   await AsyncStorage.setItem("authToken", token);
-    //   await AsyncStorage.setItem("userId", username);
-
-    //   navigation.replace("TabNavigation");
-    //   return;
-    // }
-
-    // if (username === "admin" && password == "password") {
-    //   setIsAuthenticated(true);
-
-    //   const token = "user_auth_token";
-    //   await AsyncStorage.setItem("authToken", token);
-    //   await AsyncStorage.setItem("userId", username);
-
-    //   navigation.replace("basicDetailFillUp");
-    //   return;
-    // }
-
     //original code for verifying username and password with backend
 
     try {
-      console.log("loign route called..");
-
       //provide the backend endpoint for validation here
       const response = await fetch(API.LOGIN, {
         method: "POST",
@@ -125,12 +79,12 @@ const LoginScreen = (props: propsType) => {
           password: password,
         }),
       });
-      console.log("loign route called finihd..");
+
       const data = await response.json();
-      console.log("Response:", data);
+
       if (response.ok) {
         // Handle successful login
-        console.log("response from login endpoint is ok!");
+
         setIsAuthenticated(true);
         const token = data.token;
         // console.log("recieved toekn", token);
@@ -143,16 +97,10 @@ const LoginScreen = (props: propsType) => {
         await AsyncStorage.setItem("userId", username);
 
         const userId = await AsyncStorage.getItem("userId");
-        console.log("userId from async on login screen ", userId);
 
-        console.log("waiting for checking whether saveddata generated or not");
         const rslt = await checkSavedDataExists(username);
-        console.log("value of checking saved data in login screen", rslt);
 
         if (rslt) {
-          console.log(
-            "user details data exists in backend.so no need to showbasicDetailFillup"
-          );
           navigation.navigate("TabNavigation");
         } else navigation.navigate("basicDetailFillUp");
       } else {

@@ -87,16 +87,6 @@ const Medications = () => {
           console.warn("No prescription data found or failed to fetch");
           //   setdayWiseMedicinePresciption(null);
         }
-
-        // if (data) {
-        //   const parsedData = JSON.parse(data);
-        //   console.log("Parsed data: ", parsedData.userDetails);
-
-        //   const processedMedData = processMedicineData(
-        //     parsedData.discharge_details.prescription
-        //   );
-        //   setMedications(processedMedData);
-        // }
       } catch (error) {
         console.error("Error fetching savedData:", error);
       }

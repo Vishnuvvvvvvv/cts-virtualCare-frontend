@@ -86,20 +86,6 @@ const SymptomsPopup = ({
         name: "recording.wav",
       } as any);
 
-      // formData.append("audio_file", {
-      //   uri: blob,
-      //   type: "audio/wav",
-      //   name: "recording.wav",
-      // });
-
-      // const response = await axios.post(
-      //   "http://192.168.1.7:3000/transcribe",
-      //   formData,
-      //   {
-      //     headers: { "Content-Type": "multipart/form-data" },
-      //   }
-      // );
-
       const token = await getToken();
       if (!token) {
         console.log("symptoms no token -");
@@ -153,15 +139,6 @@ const SymptomsPopup = ({
             style={styles.microphoneButton}
             onPress={recording ? stopRecording : startRecording}
           >
-            {/* <Image
-              style={styles.imgIcon}
-              source={
-                recording
-                  ? require("../../../../assets/updateHealthIcons/stop.png")
-                  : require("../../../../assets/updateHealthIcons/stop.png")
-              }
-            /> */}
-
             {recording ? (
               <Image
                 style={styles.imgIcon2}

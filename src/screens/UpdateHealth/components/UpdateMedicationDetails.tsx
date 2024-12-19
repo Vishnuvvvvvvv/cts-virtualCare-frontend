@@ -13,18 +13,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 
 const UpdateMedicationDetails = () => {
-  const { navigation } = useNavigation<any>(); //new line
-
+  const { navigation } = useNavigation<any>();
   const fetchUserId = async () => {
     try {
       const storedUserId = await AsyncStorage.getItem("userId");
       if (storedUserId !== null) {
-        console.log("stored user id in async storage ", storedUserId);
         return storedUserId; // Update state with the userId from AsyncStorage
       }
-    } catch (error) {
-      console.error("Error fetching userId from AsyncStorage:", error);
-    }
+    } catch (error) {}
   };
 
   const [medications, setMedications] = useState();
@@ -71,7 +67,6 @@ const UpdateMedicationDetails = () => {
       try {
         const token = await getToken();
         if (!token) {
-          console.log("update medicine : no token -");
           return;
         }
 
@@ -80,34 +75,18 @@ const UpdateMedicationDetails = () => {
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
         const userId = await fetchUserId();
-        console.log("calling request : ", `${API.GET_SAVED_DATA}`);
+
         const response = await axios.get(`${API.GET_SAVED_DATA}`);
 
         if (response.status === 200 && response.data) {
-          console.log(
-            "Fetched prescription data from backend:",
-            response.data?.discharge_details?.prescription
-          );
           const processedMedData = processMedicineData(
             response.data?.discharge_details?.prescription
           );
 
-          console.log("prescription ", processedMedData);
           setMedications(processedMedData);
         } else {
-          console.warn("No prescription data found or failed to fetch");
-          //   setdayWiseMedicinePresciption(null);
+          //
         }
-
-        // if (data) {
-        //   const parsedData = JSON.parse(data);
-        //   console.log("Parsed data: ", parsedData.userDetails);
-
-        //   const processedMedData = processMedicineData(
-        //     parsedData.discharge_details.prescription
-        //   );
-        //   setMedications(processedMedData);
-        // }
       } catch (error) {
         console.error("Error fetching savedData:", error);
       }
