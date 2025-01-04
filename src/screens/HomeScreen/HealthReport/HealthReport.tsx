@@ -191,7 +191,7 @@ const PatientReport = () => {
 
     const medicationList = medications
       .map((med: any, index: any) => {
-        return `• ${med}`;
+        return `• ${med.medicine_name}`;
       })
       .join("<br />");
 
