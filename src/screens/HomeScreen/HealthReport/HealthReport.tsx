@@ -199,16 +199,24 @@ const PatientReport = () => {
     <html>
       <body>
         <h1>Patient Report</h1>
-        <p><strong>Dated:</strong> 12-06-2023 to ${getTodayDate()}</p>
+        <p><strong>Dated:</strong> ${
+          fullDetails?.savedData?.PlanActivatedDate
+        } to ${getTodayDate()}</p>
         <h2>Patient Details</h2>
-        <p><strong>Name:</strong> ${patientDetails.name}</p>
-        <p><strong>Age:</strong> ${patientDetails.age}</p>
-        <p><strong>Blood Group:</strong> ${patientDetails.bloodGroup}</p>
-        <p><strong>Prescribed Illness:</strong> ${patientDetails.illness}</p>
+        <p><strong>Name:</strong> ${
+          fullDetails?.savedData?.userDetails?.name
+        }</p>
+        <p><strong>Age:</strong> ${fullDetails?.savedData?.userDetails?.age}</p>
+        <p><strong>Blood Group:</strong> ${
+          fullDetails?.savedData?.userDetails?.gender
+        }</p>
+        <p><strong>Prescribed Illness:</strong> ${
+          fullDetails?.savedData?.discharge_details?.prescribed_illness
+        }</p>
         <h2>Medications</h2>
         <p>
         
-        ${medicationList}
+        ${medications && medicatn}
         
         </p>
         <h2>Report Summary</h2>
@@ -260,7 +268,7 @@ const PatientReport = () => {
           {fullDetails?.savedData?.userDetails?.age}
         </Text>
         <Text style={styles.cardText}>
-          <Text style={styles.cardTitle}>Blood Group: </Text>
+          <Text style={styles.cardTitle}>Gender: </Text>
           {fullDetails?.savedData?.userDetails?.gender}
         </Text>
         <Text style={styles.cardText}>
