@@ -1,14 +1,14 @@
-const newURL = "http://192.168.1.106:3000";
+const newURL = "http://192.168.1.2:3000";
 export const API = {
   LOGIN: `${newURL}/api/login`,
   REGISTER: `${newURL}/api/signup`,
-  // Add more endpoints as needed
+
   SAVE_USER_DETAILS: `${newURL}/api/profile`,
   GET_USER_DETAILS: `${newURL}/api/profile`,
 
   UPLOAD_DOC: `${newURL}/api/upload`,
   SUMMARIZE: `${newURL}/api/summarize`,
-  TRANSCRIBE: `${newURL}/transcribe`,
+  TRANSCRIBE: `${newURL}/api/transcribe`,
 
   SAVE_EXTRACTED_DATA: `${newURL}/api/user-data`, //to store the final json on reviewand Submit stage
   GET_SAVED_DATA: `${newURL}/api/user-data`, //to get the saved Doc, done on the above step
@@ -88,10 +88,9 @@ export const getTokenAndCheckExpiry = async (token: any, navigation: any) => {
     console.log("Token is valid");
     return true;
   } else {
-    console.log("inside inner logic , fetching navigation obj");
     // const navigation = useNavigation<any>();
     // navigation.navigate("login");
-    console.log("fetching finished , next");
+
     await AsyncStorage.clear();
     // await AsyncStorage.removeItem("authToken");
     // setIsAuthenticated(false);
@@ -105,5 +104,4 @@ export const getTokenAndCheckExpiry = async (token: any, navigation: any) => {
     console.log("Token is expired or not found");
     return false;
   }
-  console.log("token cehcking finished.....");
 };
