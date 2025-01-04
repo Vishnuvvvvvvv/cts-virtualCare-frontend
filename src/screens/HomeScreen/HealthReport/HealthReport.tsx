@@ -216,7 +216,7 @@ const PatientReport = () => {
         <h2>Medications</h2>
         <p>
         
-        ${medications && medicatn}
+        <ul>${medicationList}</ul>
         
         </p>
         <h2>Report Summary</h2>
