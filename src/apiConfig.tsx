@@ -1,5 +1,9 @@
-const URL = "http://backendIPaddress:3000";
+const backendIPaddress = "192.168.1.3";
+const port = "3000";
+
+const URL = `http://${backendIPaddress}:${port}`;
 //Ex: backendIPaddress = 192.168.1.2
+
 export const API = {
   LOGIN: `${URL}/api/login`,
   REGISTER: `${URL}/api/signup`,
