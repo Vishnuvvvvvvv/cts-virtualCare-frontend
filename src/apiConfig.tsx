@@ -1,28 +1,29 @@
-const newURL = "http://192.168.1.2:3000";
+const URL = "http://backendIPaddress:3000";
+//Ex: backendIPaddress = 192.168.1.2
 export const API = {
-  LOGIN: `${newURL}/api/login`,
-  REGISTER: `${newURL}/api/signup`,
+  LOGIN: `${URL}/api/login`,
+  REGISTER: `${URL}/api/signup`,
 
-  SAVE_USER_DETAILS: `${newURL}/api/profile`,
-  GET_USER_DETAILS: `${newURL}/api/profile`,
+  SAVE_USER_DETAILS: `${URL}/api/profile`,
+  GET_USER_DETAILS: `${URL}/api/profile`,
 
-  UPLOAD_DOC: `${newURL}/api/upload`,
-  SUMMARIZE: `${newURL}/api/summarize`,
-  TRANSCRIBE: `${newURL}/api/transcribe`,
+  UPLOAD_DOC: `${URL}/api/upload`,
+  SUMMARIZE: `${URL}/api/summarize`,
+  TRANSCRIBE: `${URL}/api/transcribe`,
 
-  SAVE_EXTRACTED_DATA: `${newURL}/api/user-data`, //to store the final json on reviewand Submit stage
-  GET_SAVED_DATA: `${newURL}/api/user-data`, //to get the saved Doc, done on the above step
+  SAVE_EXTRACTED_DATA: `${URL}/api/user-data`, //to store the final json on reviewand Submit stage
+  GET_SAVED_DATA: `${URL}/api/user-data`, //to get the saved Doc, done on the above step
 
-  GET_DAILY_MEDICINE_STATUS: `${newURL}/api/medicine`,
-  STORE_DAILY_MEDICINE: `${newURL}/api/medicine`,
-  GET_FULL_MEDICINE_STATUS: `${newURL}/api/medicine`,
+  GET_DAILY_MEDICINE_STATUS: `${URL}/api/medicine`,
+  STORE_DAILY_MEDICINE: `${URL}/api/medicine`,
+  GET_FULL_MEDICINE_STATUS: `${URL}/api/medicine`,
 
-  STORE_SYMPTOMS: `${newURL}/api/symptoms`,
-  GET_SYMPTOMS: `${newURL}/api/symptoms`,
+  STORE_SYMPTOMS: `${URL}/api/symptoms`,
+  GET_SYMPTOMS: `${URL}/api/symptoms`,
 
-  DELETE_DATA: `${newURL}/deleteData`,
+  DELETE_DATA: `${URL}/deleteData`,
 
-  SCHEDULE_NOTIFICATION: `${newURL}/api/notification`,
+  SCHEDULE_NOTIFICATION: `${URL}/api/notification`,
 };
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
