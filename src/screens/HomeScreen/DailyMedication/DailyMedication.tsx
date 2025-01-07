@@ -480,6 +480,7 @@ const styles = StyleSheet.create({
     // display: "flex",
   },
   textComp: {
+    width: "80%",
     paddingTop: 5,
   },
   roundContainer: {

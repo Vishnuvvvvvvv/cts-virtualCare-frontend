@@ -1,5 +1,5 @@
-const backendIPaddress = "192.168.1.3";
-const port = "3000";
+const backendIPaddress = "192.168.1.7";
+const port = "3004";
 
 const URL = `http://${backendIPaddress}:${port}`;
 //Ex: backendIPaddress = 192.168.1.2
